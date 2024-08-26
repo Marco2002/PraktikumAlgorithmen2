@@ -13,6 +13,7 @@ void depth_first_search_visit(node& n, label<long>& discover_label, label<long>&
 }
 
 void depth_first_search(graph& g) {
+    // TODO check if discovery_label and finish_label are necessary
     label<long> discovery_label = {};
     label<long> finish_label = {};
     std::vector<node*> post_order = {};
@@ -25,6 +26,26 @@ void depth_first_search(graph& g) {
     }
 }
 
-void merge_vertecies(graph& g) {
-     
+label<node*> merge_vertices(const std::vector<node*>& post_order, const long d) {
+    label<node*> g = {};
+
+    // Calculate the width of each interval
+    long interval_width = post_order.size()-1 / d;
+    long lower_bounds[d+1] = {};
+
+    // Vector to store the intervals as pairs
+    std::vector<std::pair<int, int>> intervals;
+
+    for (int i = 0; i < d; ++i) {
+        lower_bounds[i] = i * interval_width;
+    }
+    lower_bounds[d] = post_order.size(); // add one "extra" lower bound to make the loop simpler
+
+    for(int i = 0; i < d; ++i) {
+        for(int j = lower_bounds[i]; j < lower_bounds[i+1]; ++j) {
+            g[post_order[j]] = post_order[lower_bounds[i]];
+        }
+    }
+
+    return g;
 }
