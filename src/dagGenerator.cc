@@ -62,8 +62,7 @@ graph generate_graph(long number_of_nodes, long long number_of_edges, bool shoul
     };
 
     for(long i = 0; i < number_of_nodes; ++i) {
-        dag.nodes_[i] = new node;
-        dag.nodes_[i]->index_ = i;
+        dag.nodes_[i] = new node(i);
     }
 
     // generate edges

@@ -13,8 +13,7 @@ TEST(insertionAlgorithm, ShiftTestHardcoded) {
     std::vector<node> nodes;
     nodes.resize(number_of_nodes);
     for(int i = 0; i < number_of_nodes; ++i) {
-        nodes[i] = {};
-        nodes[i].index_ = i;
+        nodes[i] = node(i);
     }
     std::vector<node*> inv_order;
     std::vector<bool> vacant(number_of_nodes, false);
@@ -56,8 +55,7 @@ TEST(insertionAlgorithm, DiscoverTestHardcoded) {
     std::vector<Edge> edge_insertions;
     nodes.resize(number_of_nodes);
     for(int i = 0; i < number_of_nodes; ++i) {
-        nodes[i] = {};
-        nodes[i].index_ = i;
+        nodes[i] = node(i);
     }
     std::vector<node*> inv_order;
     std::vector<bool> vacant(number_of_nodes, false);
@@ -109,8 +107,7 @@ TEST(insertionAlgorithm, InsertEdgeTestHardcoded) {
     std::vector<node*> nodes;
     nodes.resize(number_of_nodes);
     for(int i = 0; i < number_of_nodes; ++i) {
-        nodes[i] = new node;
-        nodes[i]->index_ = i;
+        nodes[i] = new node(i);
     }
     // replicate edges from example
     nodes[0]->outgoing_edges_.push_back(nodes[2]);
