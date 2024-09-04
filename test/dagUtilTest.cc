@@ -32,3 +32,16 @@ TEST(dagUtil, findsValidTopologicalOrder) {
     set_to_topological_order(dag);
     ASSERT_TRUE(graph_is_in_topological_order(dag));
 }
+
+TEST(dagUtl, sortsNodesOutgoingAndIncomingEdges) {
+    int num_of_nodes = 100000;
+    int num_of_edges = 300000;
+    set_seed(4092024);
+    graph dag = generate_graph(num_of_nodes, num_of_edges, true);
+    ASSERT_TRUE(graph_is_in_topological_order(dag));
+    shuffle_graph(dag);
+    ASSERT_FALSE(graph_is_in_topological_order(dag));
+    set_to_topological_order(dag);
+    ASSERT_TRUE(graph_is_in_topological_order(dag));
+    ASSERT_TRUE(all_nodes_edges_are_in_topological_order(dag));
+}

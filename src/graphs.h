@@ -23,9 +23,18 @@ struct graph {
     }
 
     void add_edge(const long from, const long to) {
-        nodes_[from]->outgoing_edges_.push_back(nodes_[to]);
-        nodes_[to]->incoming_edges_.push_back(nodes_[from]);
-        number_of_edges_ += 1;
+        add_edge(*nodes_[from], *nodes_[to]);
+    }
+
+    // TODO check if there is a more efficient way to remove an edge
+    void remove_edge(node& from, node& to) {
+        from.outgoing_edges_.erase(std::ranges::find(from.outgoing_edges_, &to));
+        to.incoming_edges_.erase(std::ranges::find(to.incoming_edges_, &from));
+        number_of_edges_ -= 1;
+    }
+
+    void remove_edge(const long from, const long to) {
+        remove_edge(*nodes_[from], *nodes_[to]);
     }
 };
 

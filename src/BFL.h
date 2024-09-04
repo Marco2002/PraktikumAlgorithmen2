@@ -121,18 +121,6 @@ labeled_graph<hash_range> build_labeled_graph(graph& graph, const std::function<
     return labeled_graph<hash_range>(graph, label_discovery, label_finish, label_in, label_out);
 }
 
-constexpr size_t hash_range_dense = 160;
-
-inline labeled_graph<hash_range_dense> build_labeled_graph_dense(graph& graph) {
-    return build_labeled_graph<160>(graph, [](const node* n) { return n->index_ % hash_range_dense; }, 10*hash_range_dense);
-}
-
-constexpr size_t hash_range_sparse = 64;
-
-inline labeled_graph<hash_range_sparse> build_labeled_graph_sparse(graph& graph) {
-    return build_labeled_graph<hash_range_sparse>(graph, [](const node* n) { return n->index_ % hash_range_dense; }, hash_range_sparse*hash_range_dense);
-}
-
 template <size_t hash_range>
 bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v) {
     std::vector<bool> visited(graph.graph_.nodes_.size());

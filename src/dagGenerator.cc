@@ -133,8 +133,10 @@ std::vector<Edge> generate_extra_edges(graph const& dag, long long number_of_edg
 
 
 // shuffles the order of the nodes of the given graph
-// leaves the nodes index values in an inconsistent state
 void shuffle_graph(graph& graph) {
     std::shuffle(std::begin(graph.nodes_), std::end(graph.nodes_), rng);
+    for(auto i = 0; i < graph.nodes_.size(); ++i) {
+        graph.nodes_[i]->index_ = i;
+    }
 }
 
