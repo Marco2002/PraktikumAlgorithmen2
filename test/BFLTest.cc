@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "graphs.h"
-#include "BFL.h"
+#include "BFL.cc"
 #include "dagGenerator.h"
 
 #include <stack>

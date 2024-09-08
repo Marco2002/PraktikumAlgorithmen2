@@ -1,8 +1,10 @@
+#pragma once
 #include "graphs.h"
 
 #include <bitset>
 #include <functional>
 #include <utility>
+#include <iostream>
 
 using namespace graphs;
 
@@ -28,57 +30,9 @@ struct labeled_graph {
 };
 
 
-void depth_first_search_visit(const node& n, LabelDiscovery& label_discover, LabelFinish& label_finish, std::vector<const node*>& post_order, long& current) {
-    label_discover[n.index_] = ++current;
-    for (auto const e : n.outgoing_edges_) {
-        if (label_discover[e->index_] != 0) continue; // if e was visited
+std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_search(const graph& g);
 
-        depth_first_search_visit(*e, label_discover, label_finish, post_order, current);
-    }
-    post_order.push_back(&n);
-    label_finish[n.index_] = ++current;
-
-}
-
-std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_search(const graph& g) {
-    LabelDiscovery label_discovery(g.nodes_.size());
-    LabelFinish label_finish(g.nodes_.size());
-    std::vector<const node*> post_order = {};
-    long current = 0;
-
-    for(auto n : g.nodes_) {
-        if(n->incoming_edges_.empty()) {
-            depth_first_search_visit(*n, label_discovery, label_finish, post_order, current);
-        }
-    }
-
-    return std::make_tuple(post_order, label_discovery, label_finish);
-}
-
-std::vector<const node*> merge_vertices(const std::vector<const node*>& post_order, const long d) {
-    std::vector<const node*> g = {};
-    g.resize(post_order.size());
-
-    // Calculate the width of each interval
-    long interval_width = std::max((long) post_order.size() / d, 1l);
-    long lower_bounds[d+1];
-
-    // Vector to store the intervals as pairs
-    std::vector<std::pair<int, int>> intervals;
-
-    for (int i = 0; i < d; ++i) {
-        lower_bounds[i] = i * interval_width;
-    }
-    lower_bounds[d] = post_order.size(); // add one "extra" lower bound to make the loop simpler
-
-    for(int i = 0; i < d; ++i) {
-        for(int j = lower_bounds[i]; j < lower_bounds[i+1]; ++j) {
-            g[post_order[j]->index_] = post_order[lower_bounds[i]];
-        }
-    }
-
-    return g;
-}
+std::vector<const node*> merge_vertices(const std::vector<const node*>& post_order, const long d);
 
 template <size_t hash_range>
 void compute_label_out(const graph& graph, const std::vector<const node*>& g, const std::function<int(const node*)>& h, const node& n, std::vector<std::bitset<hash_range>>& label_out) {
@@ -104,7 +58,7 @@ void compute_label_in(const graph& graph, const std::vector<const node*>& g, con
 
 // the hash should map to values in a range from 0...hash_range-1
 template <size_t hash_range> // the range is the number of values that can be possible outputs of the hash function
-labeled_graph<hash_range> build_labeled_graph(graph& graph, const std::function<int(const node*)>& h, const long d) {
+labeled_graph<hash_range> build_labeled_graph(graph& graph, const std::function<int(const node*)>& h, long d) {
     LabelIn<hash_range> label_in(graph.nodes_.size());
     LabelOut<hash_range> label_out(graph.nodes_.size());
 
