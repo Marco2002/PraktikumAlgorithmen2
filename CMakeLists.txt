@@ -18,6 +18,3 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-
-find_package(Boost REQUIRED COMPONENTS graph) # Specify Boost components like graph here
-target_link_libraries(my_executable Boost::graph)

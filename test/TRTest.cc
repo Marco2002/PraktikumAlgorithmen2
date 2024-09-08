@@ -1,6 +1,4 @@
 #include "gtest/gtest.h"
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/isomorphism.hpp>
 
 #include "graphs.h"
 #include "TR-B.h"
