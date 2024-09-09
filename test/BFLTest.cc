@@ -6,6 +6,7 @@
 
 #include <stack>
 #include <unordered_set>
+#include <random>
 
 std::stringstream buffer;
 
@@ -159,7 +160,7 @@ TEST(BFL, reachabilityQueringIsCorrect) {
     //ASSERT_TRUE(query_reachability(g, *g.graph_.nodes_[0], *g.graph_.nodes_[5]));
 }
 
-bool query_reachability_DFS(const graph& g, const node& u, const node& v) {
+bool query_reachability_DFS(const node& u, const node& v) {
     std::unordered_set<const node*> visited;
     std::stack<const node*> to_visit;
 
@@ -200,6 +201,63 @@ TEST(BFL, queringWorksOnLargeGeneratedGraphs) {
     const auto labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
 
     for(auto [from, to] : queries) {
-        ASSERT_EQ(query_reachability(labeled_graph, *from, *to), query_reachability_DFS(dag, *from, *to));
+        ASSERT_EQ(query_reachability(labeled_graph, *from, *to), query_reachability_DFS(*from, *to));
     }
+}
+
+std::unordered_set<const node*> find_all_reachable_nodes(const node& u) {
+    std::unordered_set<const node*> visited;
+    std::stack<const node*> to_visit;
+
+    to_visit.push(&u);
+
+    while (!to_visit.empty()) {
+        const node* current = to_visit.top();
+        to_visit.pop();
+
+        if (visited.find(current) != visited.end()) continue;
+
+        visited.insert(current);
+        for (const node* neighbor : current->outgoing_edges_) {
+            if (visited.find(neighbor) == visited.end()) {
+                to_visit.push(neighbor);
+            }
+        }
+    }
+    return visited;
+}
+
+TEST(BFL, queringIsCorrectOnLargeGeneratedGraphs) {
+    constexpr int num_of_nodes = 50000;
+    constexpr int num_of_edges = 100000;
+    constexpr int num_of_test_nodes = 20;
+
+    constexpr int hash_range = 160;
+    constexpr int d = 1600;
+
+    // seed graph generator randomly
+    set_seed(9092024);
+    auto dag = generate_graph(num_of_nodes, num_of_edges, true);
+    auto h = [](const node* n) { return n->index_ % hash_range; };
+    const auto labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
+
+    // Create a random number generator
+    std::random_device rd; // Seed for the random number engine
+    std::mt19937 gen(rd()); // Mersenne Twister engine
+    gen.seed(9092024);
+
+    // Define the distribution to be between 0 and x
+    std::uniform_int_distribution<> random_node(0, num_of_nodes - 1);
+
+    for(int i = 0; i < num_of_test_nodes; ++i) {
+        auto const test_node = random_node(gen);
+
+        auto const reachable_nodes = find_all_reachable_nodes(*labeled_graph.graph_.nodes_[test_node]);
+
+        for(int j = 0; j < num_of_nodes; ++j) {
+            auto const query_node = labeled_graph.graph_.nodes_[j];
+            ASSERT_EQ(query_reachability(labeled_graph, *labeled_graph.graph_.nodes_[test_node], *query_node), reachable_nodes.find(query_node) != reachable_nodes.end());
+        }
+    }
+
 }
