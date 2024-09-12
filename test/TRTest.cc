@@ -5,6 +5,9 @@
 #include "TR-O.h"
 #include "TR-O-PLUS.h"
 
+#include "dagGenerator.h"
+#include "dagUtil.h"
+
 /**
 * @brief Generates the graph from the example in the paper "One Edge at a Time: Novel Approach Towards Efficient Transitive Reduction Computation on DAGs"
 */
@@ -115,4 +118,82 @@ TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
     }
 
     graph_is_correct_transitive_reduction_on_example(tr);
+}
+
+graph build_tr_by_dfs(graph& g) {
+    for(auto n : g.nodes_) {
+        std::unordered_set<const node*> reachable_nodes;
+        std::vector<node*> nodes_to_remove;
+        for(auto m : n->outgoing_edges_) {
+            auto reachable_from_m = find_all_reachable_nodes(*m, false);
+            reachable_nodes.insert(reachable_from_m.begin(), reachable_from_m.end());
+        }
+
+        for(auto m : n->outgoing_edges_) {
+            if(reachable_nodes.find(m) != reachable_nodes.end()) {
+                nodes_to_remove.push_back(m);
+            }
+        }
+
+        for(auto m : nodes_to_remove) {
+            g.remove_edge(*n, *m);
+        }
+    }
+
+    return g;
+}
+
+TEST(TRB, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
+    int number_of_nodes = 1000;
+    int number_of_edges = 2000;
+
+    set_seed(12092024);
+    auto g = generate_graph(number_of_nodes, number_of_edges, true);
+
+    set_seed(12092024);
+    auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
+    ASSERT_EQ(g, g2);
+
+    auto tr = tr_b_dense(g);
+    set_edges_in_topological_order(tr, std::get<0>(get_topological_order(tr)));
+    auto tr2 = build_tr_by_dfs(g2);
+    set_edges_in_topological_order(tr2, std::get<0>(get_topological_order(tr2)));
+
+    ASSERT_EQ(tr, tr2);
+}
+
+TEST(TRO, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
+    int number_of_nodes = 1000;
+    int number_of_edges = 2000;
+
+    set_seed(12092024);
+    auto g = generate_graph(number_of_nodes, number_of_edges, true);
+
+    set_seed(12092024);
+    auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
+    ASSERT_EQ(g, g2);
+
+    auto tr = tr_o_dense(g);
+    auto tr2 = build_tr_by_dfs(g2);
+    set_edges_in_topological_order(tr2, std::get<0>(get_topological_order(tr2)));
+
+    ASSERT_EQ(tr, tr2);
+}
+
+TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
+    int number_of_nodes = 1000;
+    int number_of_edges = 2000;
+
+    set_seed(12092024);
+    auto g = generate_graph(number_of_nodes, number_of_edges, true);
+
+    set_seed(12092024);
+    auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
+    ASSERT_EQ(g, g2);
+
+    auto tr = tr_o_plus_dense(g);
+    auto tr2 = build_tr_by_dfs(g2);
+    set_edges_in_topological_order(tr2, std::get<0>(get_topological_order(tr2)));
+
+    ASSERT_EQ(tr, tr2);
 }

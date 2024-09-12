@@ -78,7 +78,7 @@ bool is_redundant_tro_plus(labeled_graph<hash_range> labeled_graph, Edge edge) {
 template <size_t hash_range>
 graph tr_o_plus(graph& graph) {
     auto queue = sort_edge_tro_plus(graph);
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_; }, hash_range*10);
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
 
     while(!queue.empty()) {
         auto edge = queue.front();

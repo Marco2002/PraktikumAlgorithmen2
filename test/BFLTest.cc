@@ -3,6 +3,7 @@
 #include "graphs.h"
 #include "BFL.cc"
 #include "dagGenerator.h"
+#include "dagUtil.h"
 
 #include <stack>
 #include <unordered_set>
@@ -203,28 +204,6 @@ TEST(BFL, queringWorksOnLargeGeneratedGraphs) {
     for(auto [from, to] : queries) {
         ASSERT_EQ(query_reachability(labeled_graph, *from, *to), query_reachability_DFS(*from, *to));
     }
-}
-
-std::unordered_set<const node*> find_all_reachable_nodes(const node& u) {
-    std::unordered_set<const node*> visited;
-    std::stack<const node*> to_visit;
-
-    to_visit.push(&u);
-
-    while (!to_visit.empty()) {
-        const node* current = to_visit.top();
-        to_visit.pop();
-
-        if (visited.find(current) != visited.end()) continue;
-
-        visited.insert(current);
-        for (const node* neighbor : current->outgoing_edges_) {
-            if (visited.find(neighbor) == visited.end()) {
-                to_visit.push(neighbor);
-            }
-        }
-    }
-    return visited;
 }
 
 TEST(BFL, queringIsCorrectOnLargeGeneratedGraphs) {

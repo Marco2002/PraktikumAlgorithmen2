@@ -36,6 +36,27 @@ struct graph {
     void remove_edge(const long from, const long to) {
         remove_edge(*nodes_[from], *nodes_[to]);
     }
+
+    bool operator==(const graph& other) const {
+        if (nodes_.size() != other.nodes_.size()) return false;
+        if (number_of_edges_ != other.number_of_edges_) return false;
+
+        for (long i = 0; i < nodes_.size(); i++) {
+            if(nodes_[i]->id_ != other.nodes_[i]->id_) return false;
+            if (nodes_[i]->outgoing_edges_.size() != other.nodes_[i]->outgoing_edges_.size()) return false;
+            if (nodes_[i]->incoming_edges_.size() != other.nodes_[i]->incoming_edges_.size()) return false;
+
+            for (long j = 0; j < nodes_[i]->outgoing_edges_.size(); j++) {
+                if (nodes_[i]->outgoing_edges_[j]->id_ != other.nodes_[i]->outgoing_edges_[j]->id_) return false;
+            }
+
+            for (long j = 0; j < nodes_[i]->incoming_edges_.size(); j++) {
+                if (nodes_[i]->incoming_edges_[j]->id_ != other.nodes_[i]->incoming_edges_[j]->id_) return false;
+            }
+        }
+
+        return true;
+    }
 };
 
 using Edge = std::tuple<node*, node*>;

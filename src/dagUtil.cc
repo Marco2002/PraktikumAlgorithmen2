@@ -3,6 +3,7 @@
 #include <chrono>
 #include <unordered_map>
 #include <iostream>
+#include <stack>
 
 /**
  * sorts the given dag in topological order and sets the id_ of each node to its position in the topological order
@@ -64,4 +65,31 @@ void set_edges_in_topological_order(graph& dag, const std::vector<long>& to) {
         std::sort(n->incoming_edges_.begin(), n->incoming_edges_.end(), [&to](const node* a, const node* b) { return to[a->id_] > to[b->id_]; });
     }
 
+}
+
+std::unordered_set<const node*> find_all_reachable_nodes(const node& u, bool include_root) {
+    std::unordered_set<const node*> visited;
+    std::stack<const node*> to_visit;
+
+    to_visit.push(&u);
+
+    while (!to_visit.empty()) {
+        const node* current = to_visit.top();
+        to_visit.pop();
+
+        if (visited.find(current) != visited.end()) continue;
+
+        visited.insert(current);
+        for (const node* neighbor : current->outgoing_edges_) {
+            if (visited.find(neighbor) == visited.end()) {
+                to_visit.push(neighbor);
+            }
+        }
+    }
+
+    if(!include_root) {
+        visited.erase(&u);
+    }
+
+    return visited;
 }

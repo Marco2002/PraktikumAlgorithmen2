@@ -86,23 +86,23 @@ bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, c
     visited[u.id_] = true;
 
     if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {
-        std::cout << "reachability confirmed by label_discovery and label_finish" << std::endl;
+        // std::cout << "reachability confirmed by label_discovery and label_finish" << std::endl;
         return true;
     }
     // if L_out(v) !subset_of L_out(u) or L_in(u) !subset_of L_in(v)
     if((graph.label_out_[v.id_] & graph.label_out_[u.id_]) != graph.label_out_[v.id_]
         || (graph.label_in_[u.id_] & graph.label_in_[v.id_]) != graph.label_in_[u.id_]) {
-        std::cout << "reachability denied by label_in and label_out" << std::endl;
+        // std::cout << "reachability denied by label_in and label_out" << std::endl;
         return false;
     }
     for(auto const w : u.outgoing_edges_) {
         if(visited[w->id_]) continue;
 
         if(query_reachability<hash_range>(graph, *w, v, visited)) {
-            std::cout << "reachability confirmed by a (possibly) early stopped DFS" << std::endl;
+            // std::cout << "reachability confirmed by a (possibly) early stopped DFS" << std::endl;
             return true;
         }
     }
-    std::cout << "reachability denied by a (possibly) early stopped DFS" << std::endl;
+    // std::cout << "reachability denied by a (possibly) early stopped DFS" << std::endl;
     return false;
 }
