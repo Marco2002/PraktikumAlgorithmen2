@@ -30,7 +30,7 @@ bool is_redundant(labeled_graph<hash_range> labeled_graph, Edge edge) {
 // Algorithm 1 TR-B
 template <size_t hash_range>
 graph tr_b(graph& graph) {
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->index_ % hash_range; }, hash_range*10);
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
     auto queue = sort_edge(labeled_graph.graph_);
 
     while(!queue.empty()) {

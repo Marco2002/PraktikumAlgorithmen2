@@ -6,10 +6,10 @@ namespace graphs {
 struct node {
 	std::vector<node*> outgoing_edges_;
 	std::vector<node*> incoming_edges_;
-    long index_; // current index_ in the vector of nodes of the graph
+    long id_;
 
-    node() : index_(0) {}
-    node(const long index) : index_(index) {}
+    node() : id_(0) {}
+    node(const long index) : id_(index) {}
 };
 
 struct graph {

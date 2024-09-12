@@ -10,7 +10,7 @@ TEST(dagGenerator, nodeGeneratedCorrectly) {
     graph const dag1 = generate_graph(num_of_nodes, num_of_edges, false);
     ASSERT_EQ(dag1.nodes_.size(), num_of_nodes);
     for(int i = 0; i < num_of_nodes; ++i) {
-        ASSERT_EQ(i, dag1.nodes_[i]->index_);
+        ASSERT_EQ(i, dag1.nodes_[i]->id_);
     }
 }
 
@@ -44,10 +44,10 @@ TEST(dagGenerator, isDeterministicWithSeed) {
         ASSERT_EQ(dag1.nodes_[i]->incoming_edges_.size(), dag2.nodes_[i]->incoming_edges_.size());
 
         for(int j = 0; j < dag1.nodes_[i]->outgoing_edges_.size(); ++j) {
-            ASSERT_EQ(dag1.nodes_[i]->outgoing_edges_[j]->index_, dag2.nodes_[i]->outgoing_edges_[j]->index_);
+            ASSERT_EQ(dag1.nodes_[i]->outgoing_edges_[j]->id_, dag2.nodes_[i]->outgoing_edges_[j]->id_);
         }
         for(int j = 0; j < dag1.nodes_[i]->incoming_edges_.size(); ++j) {
-            ASSERT_EQ(dag1.nodes_[i]->incoming_edges_[j]->index_, dag2.nodes_[i]->incoming_edges_[j]->index_);
+            ASSERT_EQ(dag1.nodes_[i]->incoming_edges_[j]->id_, dag2.nodes_[i]->incoming_edges_[j]->id_);
         }
     }
 }
@@ -90,7 +90,7 @@ TEST(dagGenerator, canGenerateDag) {
     int num_of_edges = 2000;
     set_seed(21012024);
     graph dag = generate_graph(num_of_nodes, num_of_edges, true);
-    ASSERT_TRUE(graph_is_in_topological_order(dag));
+    EXPECT_NO_THROW(get_topological_order(dag));
 }
 
 TEST(dagGenerator, canGenerateNonDag) {
@@ -98,8 +98,7 @@ TEST(dagGenerator, canGenerateNonDag) {
     int num_of_edges = 2000;
     set_seed(21012024);
     graph non_dag = generate_graph(num_of_nodes, num_of_edges, false);
-    ASSERT_FALSE(graph_is_in_topological_order(non_dag));
-    EXPECT_THROW(set_to_topological_order(non_dag), std::invalid_argument);
+    EXPECT_THROW(get_topological_order(non_dag), std::invalid_argument);
 }
 
 TEST(dagGenerator, worksInEdgeCases) {
@@ -107,20 +106,19 @@ TEST(dagGenerator, worksInEdgeCases) {
     int num_of_edges = 0;
     set_seed(21012024);
     graph g = generate_graph(num_of_nodes, num_of_edges, true);
-    ASSERT_TRUE(graph_is_in_topological_order(g));
+    EXPECT_NO_THROW(get_topological_order(g));
 
     num_of_nodes = 100;
     num_of_edges = num_of_nodes * (num_of_nodes-1); // full non dag (density = 1)
     set_seed(21012024);
     g = generate_graph(num_of_nodes, num_of_edges, false);
-    ASSERT_FALSE(graph_is_in_topological_order(g));
-    EXPECT_THROW(set_to_topological_order(g), std::invalid_argument);
+    EXPECT_THROW(get_topological_order(g), std::invalid_argument);
 
     num_of_nodes = 100;
     num_of_edges = num_of_nodes * (num_of_nodes-1)/2; // full dag (density = 1)
     set_seed(21012024);
     g = generate_graph(num_of_nodes, num_of_edges, true);
-    ASSERT_TRUE(graph_is_in_topological_order(g));
+    EXPECT_NO_THROW(get_topological_order(g));
 }
 
 TEST(dagGenerator, throwsInvalidArgumentWhenArgumentsInvalid) {

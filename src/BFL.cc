@@ -1,14 +1,14 @@
 #include "BFL.h"
 
 void depth_first_search_visit(const node& n, LabelDiscovery& label_discover, LabelFinish& label_finish, std::vector<const node*>& post_order, long& current) {
-    label_discover[n.index_] = ++current;
+    label_discover[n.id_] = ++current;
     for (auto const e : n.outgoing_edges_) {
-        if (label_discover[e->index_] != 0) continue; // if e was visited
+        if (label_discover[e->id_] != 0) continue; // if e was visited
 
         depth_first_search_visit(*e, label_discover, label_finish, post_order, current);
     }
     post_order.push_back(&n);
-    label_finish[n.index_] = ++current;
+    label_finish[n.id_] = ++current;
 
 }
 
@@ -46,7 +46,7 @@ std::vector<const node*> merge_vertices(const std::vector<const node*>& post_ord
 
     for(int i = 0; i < num_of_intervals; ++i) {
         for(int j = lower_bounds[i]; j < lower_bounds[i+1]; ++j) {
-            g[post_order[j]->index_] = post_order[lower_bounds[i]];
+            g[post_order[j]->id_] = post_order[lower_bounds[i]];
         }
     }
 

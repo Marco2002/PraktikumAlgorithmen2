@@ -8,11 +8,12 @@
 std::queue<Edge> sort_edge_tro(graph& graph) {
     std::queue<Edge> queue;
 
-    set_to_topological_order(graph); // add sorting into topological order
+    auto const [to, to_revere] = get_topological_order(graph); // add sorting into topological order
+    set_edges_in_topological_order(graph, to);
 
-    for (auto node : graph.nodes_) {
-        for (auto adjacent_node : node->outgoing_edges_) { // loop in ascending order
-            queue.push({node, adjacent_node});
+    for (auto node_id : to_revere) {
+        for (auto adjacent_node : graph.nodes_[node_id]->outgoing_edges_) { // loop in ascending order
+            queue.push({graph.nodes_[node_id], adjacent_node});
         }
     }
 
@@ -23,7 +24,7 @@ template <size_t hash_range>
 bool is_redundant_tro(labeled_graph<hash_range> labeled_graph, Edge edge) {
     auto [u, v] = edge;
     for (auto outgoing_from_u : u->outgoing_edges_) {
-        if (outgoing_from_u->index_ < v->index_ && query_reachability(labeled_graph, *outgoing_from_u, *v)) { // add index check
+        if (outgoing_from_u->id_ < v->id_ && query_reachability(labeled_graph, *outgoing_from_u, *v)) { // add index check
             return true;
         }
     }
@@ -34,7 +35,7 @@ bool is_redundant_tro(labeled_graph<hash_range> labeled_graph, Edge edge) {
 template <size_t hash_range>
 graph tr_o(graph& graph) {
     auto queue = sort_edge_tro(graph);
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->index_ % hash_range; }, hash_range*10);
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
 
     while(!queue.empty()) {
         auto edge = queue.front();

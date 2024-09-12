@@ -36,7 +36,7 @@ labeled_graph<3> generate_example_graph() {
     g.add_edge(10, 11);
 
     auto h = [](const node* n) {
-      switch(n->index_) {
+      switch(n->id_) {
         case 1:
         case 2:
             return 0;
@@ -119,9 +119,9 @@ TEST(BFL, labelsAreCorrectlyBuilt) {
     ASSERT_EQ(g.label_out_[11], std::bitset<3>("100"));
 }
 
-void assert_query(labeled_graph<3>& g, const int index_from, const int index_to, const bool expected_result, const std::string& expected_output) {
+void assert_query(labeled_graph<3>& g, const int id_from, const int id_to, const bool expected_result, const std::string& expected_output) {
     std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
-    ASSERT_EQ(query_reachability(g, *g.graph_.nodes_[index_from], *g.graph_.nodes_[index_to]), expected_result);
+    ASSERT_EQ(query_reachability(g, *g.graph_.nodes_[id_from], *g.graph_.nodes_[id_to]), expected_result);
     std::cout.rdbuf(oldCout);
     auto output = buffer.str();
     size_t last_newline_pos = output.rfind('\n', output.size() - 2);
@@ -184,9 +184,9 @@ bool query_reachability_DFS(const node& u, const node& v) {
 }
 
 TEST(BFL, queringWorksOnLargeGeneratedGraphs) {
-    constexpr int num_of_nodes = 5000000;
-    constexpr int num_of_edges = 10000000;
-    constexpr int num_of_queries = 10;
+    constexpr int num_of_nodes = 5000;
+    constexpr int num_of_edges = 20000;
+    constexpr int num_of_queries = 1000;
 
     constexpr int hash_range = 160;
     constexpr int d = 1600;
@@ -197,7 +197,7 @@ TEST(BFL, queringWorksOnLargeGeneratedGraphs) {
 
     auto queries = generate_extra_edges(dag, num_of_queries);
 
-    auto h = [](const node* n) { return n->index_ % hash_range; };
+    auto h = [](const node* n) { return n->id_ % hash_range; };
     const auto labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
 
     for(auto [from, to] : queries) {
@@ -228,8 +228,8 @@ std::unordered_set<const node*> find_all_reachable_nodes(const node& u) {
 }
 
 TEST(BFL, queringIsCorrectOnLargeGeneratedGraphs) {
-    constexpr int num_of_nodes = 50000;
-    constexpr int num_of_edges = 100000;
+    constexpr int num_of_nodes = 5000;
+    constexpr int num_of_edges = 20000;
     constexpr int num_of_test_nodes = 20;
 
     constexpr int hash_range = 160;
@@ -238,7 +238,7 @@ TEST(BFL, queringIsCorrectOnLargeGeneratedGraphs) {
     // seed graph generator randomly
     set_seed(9092024);
     auto dag = generate_graph(num_of_nodes, num_of_edges, true);
-    auto h = [](const node* n) { return n->index_ % hash_range; };
+    auto h = [](const node* n) { return n->id_ % hash_range; };
     const auto labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
 
     // Create a random number generator

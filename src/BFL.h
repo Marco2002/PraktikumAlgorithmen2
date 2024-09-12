@@ -36,23 +36,23 @@ std::vector<const node*> merge_vertices(const std::vector<const node*>& post_ord
 
 template <size_t hash_range>
 void compute_label_out(const graph& graph, const std::vector<const node*>& g, const std::function<int(const node*)>& h, const node& n, std::vector<std::bitset<hash_range>>& label_out) {
-    label_out[n.index_].set(h(g[n.index_]));
+    label_out[n.id_].set(h(g[n.id_]));
     for(auto const successor : n.outgoing_edges_) {
-        if(label_out[successor->index_].none()) { // if successor has not been visited
+        if(label_out[successor->id_].none()) { // if successor has not been visited
             compute_label_out<hash_range>(graph, g, h, *successor, label_out);
         }
-        label_out[n.index_] |= label_out[successor->index_]; // label_out[n] = label_out[n] union label_out[successor]
+        label_out[n.id_] |= label_out[successor->id_]; // label_out[n] = label_out[n] union label_out[successor]
     }
 }
 
 template <size_t hash_range>
 void compute_label_in(const graph& graph, const std::vector<const node*>& g, const std::function<int(const node*)>& h, const node& n, LabelIn<hash_range>& label_in) {
-    label_in[n.index_].set(h(g[n.index_]));
+    label_in[n.id_].set(h(g[n.id_]));
     for(auto const predecessor : n.incoming_edges_) {
-        if(label_in[predecessor->index_].none()) { // if successor has not been visited
+        if(label_in[predecessor->id_].none()) { // if successor has not been visited
             compute_label_in<hash_range>(graph, g, h, *predecessor, label_in);
         }
-        label_in[n.index_] |= label_in[predecessor->index_]; // label_in[n] = label_in[n] union label_in[predecessor]
+        label_in[n.id_] |= label_in[predecessor->id_]; // label_in[n] = label_in[n] union label_in[predecessor]
     }
 }
 
@@ -66,7 +66,7 @@ labeled_graph<hash_range> build_labeled_graph(graph& graph, const std::function<
     auto g = merge_vertices(post_order, d);
 
     for(auto n : post_order) {
-        if(label_out[n->index_].none()) {
+        if(label_out[n->id_].none()) {
             compute_label_in<hash_range>(graph, g, h, *n, label_in);
             compute_label_out<hash_range>(graph, g, h, *n, label_out);
         }
@@ -83,20 +83,20 @@ bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, c
 
 template <size_t hash_range>
 bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v, std::vector<bool>& visited) {
-    visited[u.index_] = true;
+    visited[u.id_] = true;
 
-    if(graph.label_discovery_[u.index_] <= graph.label_discovery_[v.index_] && graph.label_finish_[v.index_] <= graph.label_finish_[u.index_]) {
+    if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {
         std::cout << "reachability confirmed by label_discovery and label_finish" << std::endl;
         return true;
     }
     // if L_out(v) !subset_of L_out(u) or L_in(u) !subset_of L_in(v)
-    if((graph.label_out_[v.index_] & graph.label_out_[u.index_]) != graph.label_out_[v.index_]
-        || (graph.label_in_[u.index_] & graph.label_in_[v.index_]) != graph.label_in_[u.index_]) {
+    if((graph.label_out_[v.id_] & graph.label_out_[u.id_]) != graph.label_out_[v.id_]
+        || (graph.label_in_[u.id_] & graph.label_in_[v.id_]) != graph.label_in_[u.id_]) {
         std::cout << "reachability denied by label_in and label_out" << std::endl;
         return false;
     }
     for(auto const w : u.outgoing_edges_) {
-        if(visited[w->index_]) continue;
+        if(visited[w->id_]) continue;
 
         if(query_reachability<hash_range>(graph, *w, v, visited)) {
             std::cout << "reachability confirmed by a (possibly) early stopped DFS" << std::endl;
