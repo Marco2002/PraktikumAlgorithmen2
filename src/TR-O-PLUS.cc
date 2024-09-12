@@ -39,12 +39,14 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph) {
             for (auto incoming_node : up_down_node.node_->incoming_edges_) { // loop in descending order through incoming_edges
                 if(handled_edges_for_node[incoming_node->id_].find(up_down_node.node_->id_) == handled_edges_for_node[incoming_node->id_].end()) {
                     queue.push({incoming_node, up_down_node.node_});
+                    handled_edges_for_node[incoming_node->id_].insert(up_down_node.node_->id_);
                 }
             }
         } else {
             for (auto outgoing_node : up_down_node.node_->outgoing_edges_) { // loop in descending order through incoming_edges
                 if(handled_edges_for_node[up_down_node.node_->id_].find(outgoing_node->id_) == handled_edges_for_node[up_down_node.node_->id_].end()) {
                     queue.push({up_down_node.node_, outgoing_node});
+                    handled_edges_for_node[up_down_node.node_->id_].insert(outgoing_node->id_);
                 }
             }
         }

@@ -87,32 +87,32 @@ TEST(TRB, correctlyBuildTransitiveReductionOnExample) {
 }
 
 
-// TEST(TRO, correctlyBuildTransitiveReductionOnExample) {
-//     auto g = generate_example_graph_tr_test();
-//     auto tr = tr_o_sparse(g);
-//
-//     for(auto n : g.nodes_) {
-//         std::cout << "Node " << n->id_ << " has ";
-//         for(auto e : n->outgoing_edges_) {
-//             std::cout << e->id_ << ", ";
-//         }
-//         std::cout << "outgoing edges" << std::endl;
-//     }
-//
-//     graph_is_correct_transitive_reduction_on_example(tr);
-// }
-//
-// TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
-//     auto g = generate_example_graph_tr_test();
-//     auto tr = tr_o_plus_sparse(g);
-//
-//     for(auto n : g.nodes_) {
-//         std::cout << "Node " << n->id_ << " has ";
-//         for(auto e : n->outgoing_edges_) {
-//             std::cout << e->id_ << ", ";
-//         }
-//         std::cout << "outgoing edges" << std::endl;
-//     }
-//
-//     graph_is_correct_transitive_reduction_on_example(tr);
-// }
+TEST(TRO, correctlyBuildTransitiveReductionOnExample) {
+    auto g = generate_example_graph_tr_test();
+    auto tr = tr_o_sparse(g);
+
+    for(auto n : g.nodes_) {
+        std::cout << "Node " << n->id_ << " has ";
+        for(auto e : n->outgoing_edges_) {
+            std::cout << e->id_ << ", ";
+        }
+        std::cout << "outgoing edges" << std::endl;
+    }
+
+    graph_is_correct_transitive_reduction_on_example(tr);
+}
+
+TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
+    auto g = generate_example_graph_tr_test();
+    auto tr = tr_o_plus_sparse(g);
+
+    for(auto n : g.nodes_) {
+        std::cout << "Node " << n->id_ << " has ";
+        for(auto e : n->outgoing_edges_) {
+            std::cout << e->id_ << ", ";
+        }
+        std::cout << "outgoing edges" << std::endl;
+    }
+
+    graph_is_correct_transitive_reduction_on_example(tr);
+}
