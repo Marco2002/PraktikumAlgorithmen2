@@ -1,13 +1,13 @@
 #include "BFL.h"
 
-void depth_first_search_visit(const node& n, LabelDiscovery& label_discover, LabelFinish& label_finish, std::vector<const node*>& post_order, long& current) {
+void depth_first_search_visit(const node& n, LabelDiscovery& label_discover, LabelFinish& label_finish, std::vector<const node*>& post_order, long& current, long& order_index) {
     label_discover[n.id_] = ++current;
     for (auto const e : n.outgoing_edges_) {
         if (label_discover[e->id_] != 0) continue; // if e was visited
 
-        depth_first_search_visit(*e, label_discover, label_finish, post_order, current);
+        depth_first_search_visit(*e, label_discover, label_finish, post_order, current, order_index);
     }
-    post_order.push_back(&n);
+    post_order[order_index++] = &n;
     label_finish[n.id_] = ++current;
 
 }
@@ -15,12 +15,13 @@ void depth_first_search_visit(const node& n, LabelDiscovery& label_discover, Lab
 std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_search(const graph& g) {
     LabelDiscovery label_discovery(g.nodes_.size());
     LabelFinish label_finish(g.nodes_.size());
-    std::vector<const node*> post_order = {};
+    std::vector<const node*> post_order(g.nodes_.size());
     long current = 0;
+    long order_index = 0;
 
     for(auto n : g.nodes_) {
         if(n->incoming_edges_.empty()) {
-            depth_first_search_visit(*n, label_discovery, label_finish, post_order, current);
+            depth_first_search_visit(*n, label_discovery, label_finish, post_order, current, order_index);
         }
     }
 
@@ -29,8 +30,7 @@ std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_se
 
 std::vector<const node*> merge_vertices(const std::vector<const node*>& post_order, const long d) {
     auto const num_of_intervals = std::min(d, (long) post_order.size());
-    std::vector<const node*> g = {};
-    g.resize(post_order.size());
+    std::vector<const node*> g(post_order.size());
 
     // Calculate the width of each interval
     long interval_width = std::max((long) post_order.size() / num_of_intervals, 1l);

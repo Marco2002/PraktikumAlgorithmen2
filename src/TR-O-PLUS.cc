@@ -76,7 +76,7 @@ bool is_redundant_tro_plus(labeled_graph<hash_range> labeled_graph, Edge edge) {
 
 // Algorithm 3 TR-O-Plus
 template <size_t hash_range>
-graph tr_o_plus(graph& graph) {
+void tr_o_plus(graph& graph) {
     auto queue = sort_edge_tro_plus(graph);
     auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
 
@@ -85,12 +85,10 @@ graph tr_o_plus(graph& graph) {
         queue.pop();
 
         if(is_redundant_tro_plus(labeled_graph, edge)) {
-            labeled_graph.graph_.remove_edge(*std::get<0>(edge), *std::get<1>(edge));
+            graph.remove_edge(*std::get<0>(edge), *std::get<1>(edge));
         }
     }
-
-    return std::move(labeled_graph.graph_);
 }
 
-graph tr_o_plus_dense(graph& graph) { return tr_o_plus<160>(graph); }
-graph tr_o_plus_sparse(graph& graph) { return tr_o_plus<64>(graph); }
+void tr_o_plus_dense(graph& graph) { tr_o_plus<160>(graph); }
+void tr_o_plus_sparse(graph& graph) { tr_o_plus<64>(graph); }

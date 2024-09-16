@@ -1,4 +1,5 @@
 #pragma once
+#include <utility>
 #include <vector>
 
 namespace graphs {
@@ -15,6 +16,9 @@ struct node {
 struct graph {
     std::vector<node*> nodes_;
     long long number_of_edges_;
+
+    graph() : number_of_edges_(0) {}
+    graph(std::vector<node*> nodes, long long number_of_edges_) : nodes_(std::move(nodes)), number_of_edges_(number_of_edges_) {}
 
     void add_edge(node& from, node& to) {
         from.outgoing_edges_.push_back(&to);

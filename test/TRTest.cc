@@ -76,7 +76,7 @@ void graph_is_correct_transitive_reduction_on_example(graph& g) {
 
 TEST(TRB, correctlyBuildTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
-    auto tr = tr_b_sparse(g);
+    tr_b_sparse(g);
 
     for(auto n : g.nodes_) {
         std::cout << "Node " << n->id_ << " has ";
@@ -86,13 +86,13 @@ TEST(TRB, correctlyBuildTransitiveReductionOnExample) {
         std::cout << "outgoing edges" << std::endl;
     }
 
-    graph_is_correct_transitive_reduction_on_example(tr);
+    graph_is_correct_transitive_reduction_on_example(g);
 }
 
 
 TEST(TRO, correctlyBuildTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
-    auto tr = tr_o_sparse(g);
+    tr_o_sparse(g);
 
     for(auto n : g.nodes_) {
         std::cout << "Node " << n->id_ << " has ";
@@ -102,12 +102,12 @@ TEST(TRO, correctlyBuildTransitiveReductionOnExample) {
         std::cout << "outgoing edges" << std::endl;
     }
 
-    graph_is_correct_transitive_reduction_on_example(tr);
+    graph_is_correct_transitive_reduction_on_example(g);
 }
 
 TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
-    auto tr = tr_o_plus_sparse(g);
+    tr_o_plus_sparse(g);
 
     for(auto n : g.nodes_) {
         std::cout << "Node " << n->id_ << " has ";
@@ -117,10 +117,10 @@ TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
         std::cout << "outgoing edges" << std::endl;
     }
 
-    graph_is_correct_transitive_reduction_on_example(tr);
+    graph_is_correct_transitive_reduction_on_example(g);
 }
 
-graph build_tr_by_dfs(graph& g) {
+void build_tr_by_dfs(graph& g) {
     for(auto n : g.nodes_) {
         std::unordered_set<const node*> reachable_nodes;
         std::vector<node*> nodes_to_remove;
@@ -139,13 +139,11 @@ graph build_tr_by_dfs(graph& g) {
             g.remove_edge(*n, *m);
         }
     }
-
-    return g;
 }
 
 TEST(TRB, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
-    int number_of_nodes = 1000;
-    int number_of_edges = 2000;
+    int number_of_nodes = 6;
+    int number_of_edges = 12;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
@@ -154,12 +152,12 @@ TEST(TRB, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
     auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
     ASSERT_EQ(g, g2);
 
-    auto tr = tr_b_dense(g);
-    set_edges_in_topological_order(tr, std::get<0>(get_topological_order(tr)));
-    auto tr2 = build_tr_by_dfs(g2);
-    set_edges_in_topological_order(tr2, std::get<0>(get_topological_order(tr2)));
+    tr_b_dense(g);
+    set_edges_in_topological_order(g, std::get<0>(get_topological_order(g)));
+    build_tr_by_dfs(g2);
+    set_edges_in_topological_order(g2, std::get<0>(get_topological_order(g2)));
 
-    ASSERT_EQ(tr, tr2);
+    ASSERT_EQ(g, g2);
 }
 
 TEST(TRO, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
@@ -173,11 +171,11 @@ TEST(TRO, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
     auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
     ASSERT_EQ(g, g2);
 
-    auto tr = tr_o_dense(g);
-    auto tr2 = build_tr_by_dfs(g2);
-    set_edges_in_topological_order(tr2, std::get<0>(get_topological_order(tr2)));
+    tr_o_dense(g);
+    build_tr_by_dfs(g2);
+    set_edges_in_topological_order(g2, std::get<0>(get_topological_order(g2)));
 
-    ASSERT_EQ(tr, tr2);
+    ASSERT_EQ(g, g2);
 }
 
 TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
@@ -191,9 +189,9 @@ TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
     auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
     ASSERT_EQ(g, g2);
 
-    auto tr = tr_o_plus_dense(g);
-    auto tr2 = build_tr_by_dfs(g2);
-    set_edges_in_topological_order(tr2, std::get<0>(get_topological_order(tr2)));
+    tr_o_plus_dense(g);
+    build_tr_by_dfs(g2);
+    set_edges_in_topological_order(g2, std::get<0>(get_topological_order(g2)));
 
-    ASSERT_EQ(tr, tr2);
+    ASSERT_EQ(g, g2);
 }

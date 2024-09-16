@@ -29,7 +29,7 @@ bool is_redundant(labeled_graph<hash_range> labeled_graph, Edge edge) {
 
 // Algorithm 1 TR-B
 template <size_t hash_range>
-graph tr_b(graph& graph) {
+void tr_b(graph& graph) {
     auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
     auto queue = sort_edge(labeled_graph.graph_);
 
@@ -38,12 +38,10 @@ graph tr_b(graph& graph) {
         queue.pop();
 
         if(is_redundant(labeled_graph, edge)) {
-            labeled_graph.graph_.remove_edge(*std::get<0>(edge), *std::get<1>(edge));
+            graph.remove_edge(*std::get<0>(edge), *std::get<1>(edge));
         }
     }
-
-    return std::move(labeled_graph.graph_);
 }
 
-graph tr_b_dense(graph& graph) { return tr_b<160>(graph); }
-graph tr_b_sparse(graph& graph) { return tr_b<64>(graph); }
+void tr_b_dense(graph& graph) { tr_b<160>(graph); }
+void tr_b_sparse(graph& graph) { tr_b<64>(graph); }

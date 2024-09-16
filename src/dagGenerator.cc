@@ -61,10 +61,7 @@ graph generate_graph(long number_of_nodes, long long number_of_edges, bool shoul
     nodes.resize(number_of_nodes);
     edges.resize(number_of_edges);
 
-    graph dag = {
-            .nodes_ = nodes,
-            .number_of_edges_ = number_of_edges,
-    };
+    graph dag(nodes, number_of_edges);
 
     for(long i = 0; i < number_of_nodes; ++i) {
         dag.nodes_[i] = new node(i);
