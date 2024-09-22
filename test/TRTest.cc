@@ -142,8 +142,8 @@ void build_tr_by_dfs(graph& g) {
 }
 
 TEST(TRB, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
-    int number_of_nodes = 6;
-    int number_of_edges = 12;
+    int number_of_nodes = 1000;
+    int number_of_edges = 20000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
@@ -162,7 +162,7 @@ TEST(TRB, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
 
 TEST(TRO, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
     int number_of_nodes = 1000;
-    int number_of_edges = 2000;
+    int number_of_edges = 20000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
@@ -180,7 +180,7 @@ TEST(TRO, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
 
 TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
     int number_of_nodes = 1000;
-    int number_of_edges = 2000;
+    int number_of_edges = 20000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);

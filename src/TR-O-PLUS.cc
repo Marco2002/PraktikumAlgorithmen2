@@ -14,10 +14,9 @@ struct up_down_node {
     up_down_node(node* node, bool is_up, size_t degree) : node_(node), is_up_(is_up), degree(degree) {}
 };
 
-std::queue<Edge> sort_edge_tro_plus(graph& graph) {
+std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, const std::vector<long>& to_reverse) {
     std::queue<Edge> queue;
 
-    auto const [to, to_reverse] = get_topological_order(graph); // add sorting into topological order
     set_edges_in_topological_order(graph, to);
 
     std::vector<up_down_node> up_and_down_nodes(graph.nodes_.size()*2);
@@ -56,17 +55,19 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph) {
 }
 
 template <size_t hash_range>
-bool is_redundant_tro_plus(labeled_graph<hash_range> labeled_graph, Edge edge) {
+bool is_redundant_tro_plus(labeled_graph<hash_range> labeled_graph, Edge edge, const std::vector<long>& to) {
     auto [u, v] = edge;
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
         for (auto w : v->incoming_edges_) {
-            if (w->id_ > u->id_ && query_reachability(labeled_graph, *u, *w)) { // add index check
+            if (to[w->id_] <= to[u->id_]) break;
+            if (query_reachability(labeled_graph, *u, *w)) { // add index check
                 return true;
             }
         }
     } else {
         for (auto w : u->outgoing_edges_) {
-            if (w->id_ < v->id_ && query_reachability(labeled_graph, *w, *v)) { // add index check
+            if (to[w->id_] >= to[v->id_]) break;
+            if (query_reachability(labeled_graph, *w, *v)) { // add index check
                 return true;
             }
         }
@@ -77,14 +78,16 @@ bool is_redundant_tro_plus(labeled_graph<hash_range> labeled_graph, Edge edge) {
 // Algorithm 3 TR-O-Plus
 template <size_t hash_range>
 void tr_o_plus(graph& graph) {
-    auto queue = sort_edge_tro_plus(graph);
+    auto const [to, to_reverse] = get_topological_order(graph); // add sorting into topological order
+    auto queue = sort_edge_tro_plus(graph, to, to_reverse);
+
     auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
 
     while(!queue.empty()) {
         auto edge = queue.front();
         queue.pop();
 
-        if(is_redundant_tro_plus(labeled_graph, edge)) {
+        if(is_redundant_tro_plus(labeled_graph, edge, to)) {
             graph.remove_edge(*std::get<0>(edge), *std::get<1>(edge));
         }
     }

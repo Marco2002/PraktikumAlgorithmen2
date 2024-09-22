@@ -25,6 +25,10 @@ std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_se
         }
     }
 
+    if(order_index < g.nodes_.size() - 1) {
+        throw std::invalid_argument( "the input graph is not a dag" );
+    }
+
     return std::make_tuple(post_order, label_discovery, label_finish);
 }
 

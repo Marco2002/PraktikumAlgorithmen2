@@ -7,13 +7,14 @@
 #include "TR-O.h"
 #include "TR-O-PLUS.h"
 #include "dagUtil.h"
+#include "dagGenerator.h"
 
-std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&)) {
+std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&), std::string algorithm_name) {
     auto start = std::chrono::high_resolution_clock::now();
     algorithm(graph);
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "calculated transient reduction with TR-B. TIME: " << duration.count() << "microseconds\n";
+    std::cout << "calculated transient reduction " << algorithm_name <<". TIME: " << duration.count() << "microseconds\n";
     return duration;
 }
 
@@ -68,6 +69,8 @@ graph read_txt_graph(const std::string& filename) {
     graph g;
     std::string line;
     long num_nodes = 0;
+    std::map<long, long> node_id_map;
+    long current_id = 0;
 
     // Skip the first two comment lines
     std::getline(file, line);
@@ -81,10 +84,47 @@ graph read_txt_graph(const std::string& filename) {
     iss >> temp >> temp; // Skip "Nodes:"
     if (!(iss >> num_nodes)) throw std::runtime_error("Error parsing the number of nodes.");
 
+    std::vector<long> outgoing_edge_count(num_nodes, 0);
+    std::vector<long> incoming_edge_count(num_nodes, 0);
+
+    // First pass: Count the number of outgoing and incoming edges for each node
+    while (std::getline(file, line)) {
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+
+        std::istringstream edge_stream(line);
+        long from, to;
+        if (!(edge_stream >> from >> to)) throw std::runtime_error("Error parsing edge line.");
+        if(from == to) continue;
+
+        if(node_id_map.find(from) == node_id_map.end()) {
+            node_id_map[from] = current_id++;
+        }
+        if(node_id_map.find(to) == node_id_map.end()) {
+            node_id_map[to] = current_id++;
+        }
+
+        // Increment the outgoing count for 'from' node and incoming count for 'to' node
+        outgoing_edge_count[node_id_map[from]]++;
+        incoming_edge_count[node_id_map[to]]++;
+    }
+
     g.nodes_.reserve(num_nodes);
     for (long i = 0; i < num_nodes; ++i) {
         g.nodes_.push_back(new node(i));
+        g.nodes_[i]->outgoing_edges_.reserve(outgoing_edge_count[i]);
+        g.nodes_[i]->incoming_edges_.reserve(incoming_edge_count[i]);
     }
+
+    // Second pass: Actually add the edges now that the space is reserved
+    file.clear();  // Clear EOF flag
+    file.seekg(0); // Go back to the start of the file
+
+    // Skip the first three lines again
+    std::getline(file, line); // First comment line
+    std::getline(file, line); // Second comment line
+    std::getline(file, line); // Third line (node/edge count)
 
     // read the edges from the file
     while (std::getline(file, line)) {
@@ -94,8 +134,10 @@ graph read_txt_graph(const std::string& filename) {
         std::istringstream edge_stream(line);
         long from, to;
         if (!(edge_stream >> from >> to)) throw std::runtime_error("Error parsing edge line.");
+        if(from == to) continue;
 
-        g.add_edge(from, to);
+        g.add_edge(node_id_map[from], node_id_map[to]);
+
     }
 
     return g;
@@ -118,23 +160,23 @@ void execute_test_on_graph(const std::string& graph_name, const std::string& fil
     }
 
     auto g = read_graph(graph_name, filetype);
-    auto duration = evaluate(g, tr_b_sparse);
+    auto duration = evaluate(g, tr_b_sparse, "tr_b_sparse");
     resultsFile << "TR-B for sparse graphs: " << duration.count() << "\n";
     g = read_graph(graph_name, filetype);
-    duration = evaluate(g, tr_o_sparse);
+    duration = evaluate(g, tr_o_sparse, "tr_o_sparse");
     resultsFile << "TR-O for sparse graphs: " << duration.count() << "\n";
     g = read_graph(graph_name, filetype);
-    duration = evaluate(g, tr_o_plus_sparse);
+    duration = evaluate(g, tr_o_plus_sparse, "tr_o_plus_sparse");
     resultsFile << "TR-O-PLUS for sparse graphs: " << duration.count() << "\n";
 
     g = read_graph(graph_name, filetype);
-    duration = evaluate(g, tr_b_dense);
+    duration = evaluate(g, tr_b_dense, "tr_b_dense");
     resultsFile << "TR-B for dense graphs: " << duration.count() << "\n";
     g = read_graph(graph_name, filetype);
-    duration = evaluate(g, tr_o_dense);
+    duration = evaluate(g, tr_o_dense, "tr_o_dense");
     resultsFile << "TR-O for dense graphs: " << duration.count() << "\n";
     g = read_graph(graph_name, filetype);
-    duration = evaluate(g, tr_o_plus_sparse);
+    duration = evaluate(g, tr_o_plus_dense, "tr_o_plus_dense");
     resultsFile << "TR-O-PLUS for dense  graphs: " << duration.count() << "\n";
 }
 
@@ -146,6 +188,17 @@ TEST(evaluate, go) {
     execute_test_on_graph("go", "gra");
 }
 
-TEST(evaluate, web) {
-    execute_test_on_graph("web-NotreDame", "txt");
+TEST(evaluate, citPatents2) {
+    execute_test_on_graph("cit-Patents2", "txt");
+}
+
+TEST(TRO_PLUS, time_tests) {
+    int number_of_nodes = 20000;
+    int number_of_edges = 86000;
+
+    set_seed(12092024);
+    auto g = generate_graph(number_of_nodes, number_of_edges, true);
+
+
+    tr_o_plus_dense(g);
 }
