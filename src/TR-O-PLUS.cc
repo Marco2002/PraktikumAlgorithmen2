@@ -55,8 +55,8 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, c
 }
 
 template <size_t hash_range>
-bool is_redundant_tro_plus(labeled_graph<hash_range> labeled_graph, Edge edge, const std::vector<long>& to) {
-    auto [u, v] = edge;
+bool is_redundant_tro_plus(const labeled_graph<hash_range>& labeled_graph, const Edge& edge, const std::vector<long>& to) {
+    const auto [u, v] = edge;
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
         for (auto w : v->incoming_edges_) {
             if (to[w->id_] <= to[u->id_]) break;
