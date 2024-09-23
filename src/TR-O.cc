@@ -20,8 +20,8 @@ std::queue<Edge> sort_edge_tro(graph& graph, const std::vector<long>& to, const 
 }
 
 template <size_t hash_range>
-bool is_redundant_tro(labeled_graph<hash_range> labeled_graph, Edge edge, const std::vector<long>& to) {
-    auto [u, v] = edge;
+bool is_redundant_tro(const labeled_graph<hash_range>& labeled_graph, const Edge& edge, const std::vector<long>& to) {
+    const auto [u, v] = edge;
     for (auto outgoing_from_u : u->outgoing_edges_) {
         if (outgoing_from_u->id_ < v->id_ && query_reachability(labeled_graph, *outgoing_from_u, *v)) { // add index check
             return true;

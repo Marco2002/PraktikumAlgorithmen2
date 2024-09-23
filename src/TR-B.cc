@@ -17,8 +17,8 @@ std::queue<Edge> sort_edge(graph& graph) {
 }
 
 template <size_t hash_range>
-bool is_redundant(labeled_graph<hash_range> labeled_graph, Edge edge) {
-    auto [u, v] = edge;
+bool is_redundant(const labeled_graph<hash_range>& labeled_graph, const Edge& edge) {
+    const auto [u, v] = edge;
     for (auto outgoing_from_u : u->outgoing_edges_) {
         if (outgoing_from_u != v && query_reachability(labeled_graph, *outgoing_from_u, *v)) {
             return true;
