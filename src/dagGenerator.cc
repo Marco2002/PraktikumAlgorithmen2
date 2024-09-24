@@ -25,7 +25,7 @@ struct hash_tuple {
     }
 };
 
-void set_seed(int seed) {
+void set_seed(const int seed) {
     rng.seed(seed);
 }
 
@@ -44,27 +44,25 @@ void set_seed(int seed) {
  *
  * @return the generated graph
  */
-graph generate_graph(long number_of_nodes, long long number_of_edges, bool should_be_dag, bool should_be_shuffled) {
+graph generate_graph(const long number_of_nodes, const long long number_of_edges, const bool should_be_dag, const bool should_be_shuffled) {
     if(number_of_nodes < 2) {
         throw std::invalid_argument( "the number of nodes needs to be at least 2" );
     }
     if(number_of_edges < 0) {
         throw std::invalid_argument( "number of needs to be at least 0" );
     }
-    if(should_be_dag && number_of_edges > ((long long) number_of_nodes)/2 * (((long long) number_of_nodes) -1) ||
-            !should_be_dag && number_of_edges > ((long long) number_of_nodes) * (((long long) number_of_nodes)-1)) {
+    if(should_be_dag && number_of_edges > static_cast<long long>(number_of_nodes)/2 * (static_cast<long long>(number_of_nodes) -1) ||
+            !should_be_dag && number_of_edges > static_cast<long long>(number_of_nodes) * (static_cast<long long>(number_of_nodes)-1)) {
         throw std::invalid_argument( "too many edges" );
     }
-    std::vector<node*> nodes;
-    std::vector<Edge> edges;
+    const std::vector<node> nodes(number_of_nodes);
+    std::vector<Edge> edges(number_of_edges);
     std::uniform_int_distribution<long> node_distribution(0,number_of_nodes-1);
-    nodes.resize(number_of_nodes);
-    edges.resize(number_of_edges);
 
-    graph dag(nodes, number_of_edges);
+    graph dag(nodes, 0);
 
     for(long i = 0; i < number_of_nodes; ++i) {
-        dag.nodes_[i] = new node(i);
+        dag.nodes_[i] = node(i);
     }
 
     // generate edges
@@ -93,43 +91,81 @@ graph generate_graph(long number_of_nodes, long long number_of_edges, bool shoul
         // if the graph should not be a dag then the edges will be set in random order
         generated_edges.insert(std::make_tuple(from, to));
 
-        dag.nodes_[from]->outgoing_edges_.push_back(dag.nodes_[to]); // add the destination node to the outgoing edges of the origin node
-        dag.nodes_[to]->incoming_edges_.push_back(dag.nodes_[from]); // add the origin node to the incoming edges of the destination node
+        dag.add_edge(from, to);
 
     }
 
     if(should_be_shuffled) {
-        std::shuffle(std::begin(dag.nodes_), std::end(dag.nodes_), rng);
-        for(int i = 0; i < number_of_nodes; ++i) {
-            dag.nodes_[i]->id_ = i;
+        // Create a vector of pointers to nodes for shuffling
+        std::vector<node*> node_ptrs(dag.nodes_.size());
+        for (size_t i = 0; i < dag.nodes_.size(); ++i) {
+            node_ptrs[i] = &dag.nodes_[i];  // Store pointers to each node
         }
+
+        // Shuffle the pointers using a random engine
+        std::random_device rd;  // Obtain a random number from hardware
+        std::mt19937 eng(rd()); // Seed the generator
+        std::shuffle(node_ptrs.begin(), node_ptrs.end(), eng);
+
+        // Create a temporary vector to hold the shuffled nodes
+        std::vector<node> shuffled_nodes(dag.nodes_.size());
+
+        // Update shuffled_nodes with the shuffled pointers and set their ids
+        for (size_t i = 0; i < node_ptrs.size(); ++i) {
+            shuffled_nodes[i] = *node_ptrs[i]; // Copy the content of the node
+            shuffled_nodes[i].id_ = i;          // Set the new id to the index
+        }
+
+        // Update outgoing and incoming edges to point to the new nodes
+        for (size_t i = 0; i < node_ptrs.size(); ++i) {
+            node& current_node = shuffled_nodes[i];
+            // Update outgoing edges
+            for (auto& outgoing : current_node.outgoing_edges_) {
+                // Find the index of the original outgoing node and update the pointer
+                auto it = std::find(node_ptrs.begin(), node_ptrs.end(), outgoing);
+                if (it != node_ptrs.end()) {
+                    outgoing = &shuffled_nodes[std::distance(node_ptrs.begin(), it)];
+                }
+            }
+            // Update incoming edges
+            for (auto& incoming : current_node.incoming_edges_) {
+                // Find the index of the original incoming node and update the pointer
+                auto it = std::find(node_ptrs.begin(), node_ptrs.end(), incoming);
+                if (it != node_ptrs.end()) {
+                    incoming = &shuffled_nodes[std::distance(node_ptrs.begin(), it)];
+                }
+            }
+        }
+
+        // Replace the original nodes_ with the shuffled nodes
+        dag.nodes_ = std::move(shuffled_nodes);
     }
 
     return dag;
 }
 
-std::vector<Edge> generate_extra_edges(graph const& dag, long long number_of_edges) {
+std::vector<ConstEdge> generate_extra_edges(graph const& dag, long long number_of_edges) {
     std::uniform_int_distribution<long> node_distribution(0,dag.nodes_.size()-1);
     std::unordered_set<std::tuple<long, long>, hash_tuple>  existing_edges = {};
-    std::vector<Edge> generated_edges = {};
+    std::vector<std::tuple<const node*, const node*>> generated_edges = {};
     // add so exisiting edges to generated_edges
-    for(auto const n : dag.nodes_) {
-        for(auto const m : n->outgoing_edges_) {
-            existing_edges.insert(std::make_tuple(n->id_, m->id_));
+    for(auto const& n : dag.nodes_) {
+        for(auto const m : n.outgoing_edges_) {
+            existing_edges.insert(std::make_tuple(n.id_, m->id_));
         }
     }
     // generate random new edges that don't invalidate current topological order
     for(long long i = 0; i < number_of_edges; ++i) {
         // generate two random indexes
         long a, b;
-        node *from, *to;
+        const node *from, *to;
 
         do {
             a = node_distribution(rng);
             b = node_distribution(rng);
 
-            from = dag.nodes_[std::min(a, b)];
-            to = dag.nodes_[std::max(a, b)];
+            from = &(dag.nodes_[std::min(a, b)]);
+            to = &(dag.nodes_[std::max(a, b)]);
         // if the generated edge is already in the graph, or was already generated before or is a self pointing edge,
         // then the edge is invalid and needs to be regenerated
         } while (from == to

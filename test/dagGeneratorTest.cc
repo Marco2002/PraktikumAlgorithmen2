@@ -10,7 +10,7 @@ TEST(dagGenerator, nodeGeneratedCorrectly) {
     graph const dag1 = generate_graph(num_of_nodes, num_of_edges, false);
     ASSERT_EQ(dag1.nodes_.size(), num_of_nodes);
     for(int i = 0; i < num_of_nodes; ++i) {
-        ASSERT_EQ(i, dag1.nodes_[i]->id_);
+        ASSERT_EQ(i, dag1.nodes_[i].id_);
     }
 }
 
@@ -22,9 +22,9 @@ TEST(dagGenerator, edgesGeneratedCorrectly) {
     ASSERT_EQ(graph.nodes_.size(), num_of_nodes);
     long long counted_num_of_outgoing_edges = 0;
     long long counted_num_of_incoming_edges = 0;
-    for(auto n : graph.nodes_) {
-        counted_num_of_outgoing_edges += n->outgoing_edges_.size();
-        counted_num_of_incoming_edges += n->outgoing_edges_.size();
+    for(auto const& n: graph.nodes_) {
+        counted_num_of_outgoing_edges += n.outgoing_edges_.size();
+        counted_num_of_incoming_edges += n.outgoing_edges_.size();
     }
     ASSERT_EQ(counted_num_of_outgoing_edges, num_of_edges);
     ASSERT_EQ(counted_num_of_incoming_edges, num_of_edges);
@@ -40,14 +40,14 @@ TEST(dagGenerator, isDeterministicWithSeed) {
     graph const dag2 = generate_graph(num_of_nodes, num_of_edges, true);
 
     for(int i = 0; i < num_of_nodes; ++i) {
-        ASSERT_EQ(dag1.nodes_[i]->outgoing_edges_.size(), dag2.nodes_[i]->outgoing_edges_.size());
-        ASSERT_EQ(dag1.nodes_[i]->incoming_edges_.size(), dag2.nodes_[i]->incoming_edges_.size());
+        ASSERT_EQ(dag1.nodes_[i].outgoing_edges_.size(), dag2.nodes_[i].outgoing_edges_.size());
+        ASSERT_EQ(dag1.nodes_[i].incoming_edges_.size(), dag2.nodes_[i].incoming_edges_.size());
 
-        for(int j = 0; j < dag1.nodes_[i]->outgoing_edges_.size(); ++j) {
-            ASSERT_EQ(dag1.nodes_[i]->outgoing_edges_[j]->id_, dag2.nodes_[i]->outgoing_edges_[j]->id_);
+        for(int j = 0; j < dag1.nodes_[i].outgoing_edges_.size(); ++j) {
+            ASSERT_EQ(dag1.nodes_[i].outgoing_edges_[j]->id_, dag2.nodes_[i].outgoing_edges_[j]->id_);
         }
-        for(int j = 0; j < dag1.nodes_[i]->incoming_edges_.size(); ++j) {
-            ASSERT_EQ(dag1.nodes_[i]->incoming_edges_[j]->id_, dag2.nodes_[i]->incoming_edges_[j]->id_);
+        for(int j = 0; j < dag1.nodes_[i].incoming_edges_.size(); ++j) {
+            ASSERT_EQ(dag1.nodes_[i].incoming_edges_[j]->id_, dag2.nodes_[i].incoming_edges_[j]->id_);
         }
     }
 }
@@ -65,22 +65,22 @@ TEST(dagGenerator, generatesConsitentGraphs) {
     ASSERT_EQ(non_dag.nodes_.size(), number_of_nodes);
     ASSERT_EQ(non_dag.number_of_edges_, number_of_edges);
     // assert that all the node's incoming and outgoing edges lead to nodes that are also part of the graph
-    for(auto const node : dag.nodes_) {
-        for(auto const n: node->outgoing_edges_) {
-            ASSERT_TRUE(std::find(dag.nodes_.begin(), dag.nodes_.end(), n) != dag.nodes_.end());
+    for(auto const& node : dag.nodes_) {
+        for(auto const n: node.outgoing_edges_) {
+            ASSERT_TRUE(std::find(dag.nodes_.begin(), dag.nodes_.end(), *n) != dag.nodes_.end());
         }
-        for(auto const n: node->outgoing_edges_) {
-            ASSERT_TRUE(std::find(dag.nodes_.begin(), dag.nodes_.end(), n) != dag.nodes_.end());
+        for(auto const n: node.outgoing_edges_) {
+            ASSERT_TRUE(std::find(dag.nodes_.begin(), dag.nodes_.end(), *n) != dag.nodes_.end());
         }
     }
 
     // repeat for the normal non_dag
-    for(auto const node : non_dag.nodes_) {
-        for(auto const n: node->outgoing_edges_) {
-            ASSERT_TRUE(std::find(non_dag.nodes_.begin(), non_dag.nodes_.end(), n) != non_dag.nodes_.end());
+    for(auto const& node : non_dag.nodes_) {
+        for(auto const n: node.outgoing_edges_) {
+            ASSERT_TRUE(std::find(non_dag.nodes_.begin(), non_dag.nodes_.end(), *n) != non_dag.nodes_.end());
         }
-        for(auto const n : node->outgoing_edges_) {
-            ASSERT_TRUE(std::find(non_dag.nodes_.begin(), non_dag.nodes_.end(), n) != non_dag.nodes_.end());
+        for(auto const n : node.outgoing_edges_) {
+            ASSERT_TRUE(std::find(non_dag.nodes_.begin(), non_dag.nodes_.end(), *n) != non_dag.nodes_.end());
         }
     }
 }

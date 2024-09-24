@@ -1,6 +1,4 @@
 cmake_minimum_required(VERSION 3.26)
-# Specify the location of vcpkg
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(PraktikumAlgorithmenWS23_24)
 
 set(CMAKE_CXX_STANDARD 20)

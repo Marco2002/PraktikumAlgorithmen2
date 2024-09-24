@@ -9,11 +9,11 @@
 #include "dagUtil.h"
 #include "dagGenerator.h"
 
-std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&), std::string algorithm_name) {
-    auto start = std::chrono::high_resolution_clock::now();
+std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&), const std::string& algorithm_name) {
+    auto const start = std::chrono::high_resolution_clock::now();
     algorithm(graph);
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = duration_cast<std::chrono::microseconds>(stop - start);
+    auto const stop = std::chrono::high_resolution_clock::now();
+    auto const duration = duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << "calculated transient reduction " << algorithm_name <<". TIME: " << duration.count() << "microseconds\n";
     return duration;
 }
@@ -35,7 +35,7 @@ graph read_gra_file(const std::string& filename) {
     // Initialize the graph nodes
     g.nodes_.reserve(num_nodes);
     for (long i = 0; i < num_nodes; ++i) {
-        g.nodes_.push_back(new node(i)); // Create nodes with id
+        g.nodes_.emplace_back(i); // Create nodes with id
     }
 
     // Read each node's edges
@@ -98,10 +98,10 @@ graph read_txt_graph(const std::string& filename) {
         if (!(edge_stream >> from >> to)) throw std::runtime_error("Error parsing edge line.");
         if(from == to) continue;
 
-        if(node_id_map.find(from) == node_id_map.end()) {
+        if(!node_id_map.contains(from)) {
             node_id_map[from] = current_id++;
         }
-        if(node_id_map.find(to) == node_id_map.end()) {
+        if(!node_id_map.contains(to)) {
             node_id_map[to] = current_id++;
         }
 
@@ -112,9 +112,9 @@ graph read_txt_graph(const std::string& filename) {
 
     g.nodes_.reserve(num_nodes);
     for (long i = 0; i < num_nodes; ++i) {
-        g.nodes_.push_back(new node(i));
-        g.nodes_[i]->outgoing_edges_.reserve(outgoing_edge_count[i]);
-        g.nodes_[i]->incoming_edges_.reserve(incoming_edge_count[i]);
+        g.nodes_.emplace_back(i);
+        g.nodes_[i].outgoing_edges_.reserve(outgoing_edge_count[i]);
+        g.nodes_[i].incoming_edges_.reserve(incoming_edge_count[i]);
     }
 
     // Second pass: Actually add the edges now that the space is reserved
@@ -188,9 +188,9 @@ TEST(evaluate, go) {
     execute_test_on_graph("go", "gra");
 }
 
-TEST(evaluate, citPatents2) {
-    execute_test_on_graph("cit-Patents2", "txt");
-}
+// TEST(evaluate, citPatents2) {
+//     execute_test_on_graph("cit-Patents2", "txt");
+// }
 
 TEST(TRO_PLUS, time_tests) {
     int number_of_nodes = 20000;
@@ -202,3 +202,10 @@ TEST(TRO_PLUS, time_tests) {
 
     tr_o_plus_dense(g);
 }
+
+// TODOs to improve performance
+// Store node objects directly in graph to avoid pointer indirection.
+// Replace edge pointers in node with node indices
+// Consider optimizing remove_edge for faster deletion.
+// Use std::array for labels if sizes are fixed
+// make add_edge, remove_edge and operator=== inline

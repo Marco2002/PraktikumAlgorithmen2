@@ -19,9 +19,9 @@ std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_se
     long current = 0;
     long order_index = 0;
 
-    for(auto n : g.nodes_) {
-        if(n->incoming_edges_.empty()) {
-            depth_first_search_visit(*n, label_discovery, label_finish, post_order, current, order_index);
+    for(const auto& n : g.nodes_) {
+        if(n.incoming_edges_.empty()) {
+            depth_first_search_visit(n, label_discovery, label_finish, post_order, current, order_index);
         }
     }
 
@@ -33,11 +33,11 @@ std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_se
 }
 
 std::vector<const node*> merge_vertices(const std::vector<const node*>& post_order, const long d) {
-    auto const num_of_intervals = std::min(d, (long) post_order.size());
+    auto const num_of_intervals = std::min(d, static_cast<long>(post_order.size()));
     std::vector<const node*> g(post_order.size());
 
     // Calculate the width of each interval
-    long interval_width = std::max((long) post_order.size() / num_of_intervals, 1l);
+    long interval_width = std::max(static_cast<long>(post_order.size()) / num_of_intervals, 1l);
     long lower_bounds[num_of_intervals+1];
 
     // Vector to store the intervals as pairs

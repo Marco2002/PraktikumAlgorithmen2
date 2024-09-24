@@ -3,13 +3,15 @@
 #include "BFL.h"
 
 #include <queue>
+#include <algorithm>
+#include <ranges>
 
 std::queue<Edge> sort_edge(graph& graph) {
     std::queue<Edge> queue;
 
-    for (auto node : graph.nodes_) {
-        for (auto adjacent_node : node->outgoing_edges_) {
-            queue.push({node, adjacent_node});
+    for (auto& node : graph.nodes_) {
+        for (const auto adjacent_node : node.outgoing_edges_) {
+            queue.emplace(&node, adjacent_node);
         }
     }
 
@@ -19,12 +21,9 @@ std::queue<Edge> sort_edge(graph& graph) {
 template <size_t hash_range>
 bool is_redundant(const labeled_graph<hash_range>& labeled_graph, const Edge& edge) {
     const auto [u, v] = edge;
-    for (auto outgoing_from_u : u->outgoing_edges_) {
-        if (outgoing_from_u != v && query_reachability(labeled_graph, *outgoing_from_u, *v)) {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(u->outgoing_edges_, [&labeled_graph, &v](auto const& outgoing_from_u) {
+        return outgoing_from_u != v && query_reachability(labeled_graph, *outgoing_from_u, *v);
+    });
 }
 
 // Algorithm 1 TR-B

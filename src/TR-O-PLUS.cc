@@ -10,8 +10,7 @@ struct up_down_node {
     bool is_up_;
     size_t degree;
 
-    up_down_node() {}
-    up_down_node(node* node, bool is_up, size_t degree) : node_(node), is_up_(is_up), degree(degree) {}
+    up_down_node(node* node, const bool is_up, const size_t degree) : node_(node), is_up_(is_up), degree(degree) {}
 };
 
 std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, const std::vector<long>& to_reverse) {
@@ -19,12 +18,13 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, c
 
     set_edges_in_topological_order(graph, to);
 
-    std::vector<up_down_node> up_and_down_nodes(graph.nodes_.size()*2);
+    std::vector<up_down_node> up_and_down_nodes;
+    up_and_down_nodes.reserve(graph.nodes_.size()*2);
     // divide nodes into UP-nodes and DOWN-nodes
-    for (auto node_id : to_reverse) {
-        auto const node = graph.nodes_[node_id];
-        up_and_down_nodes[2*node->id_] = up_down_node(node, true, node->incoming_edges_.size());
-        up_and_down_nodes[2*node->id_ + 1] = up_down_node(node, false, node->outgoing_edges_.size());
+    for (auto const node_id : to_reverse) {
+        auto& node = graph.nodes_[node_id];
+        up_and_down_nodes.emplace_back(&node, true, node.incoming_edges_.size());
+        up_and_down_nodes.emplace_back(&node, false, node.outgoing_edges_.size());
     }
     // sort up and down nodes by their degree in ascending order
     std::sort(up_and_down_nodes.begin(), up_and_down_nodes.end(), [](const up_down_node& a, const up_down_node& b) {
@@ -36,15 +36,15 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, c
     for(auto const& up_down_node : up_and_down_nodes) {
         if(up_down_node.is_up_) {
             for (auto incoming_node : up_down_node.node_->incoming_edges_) { // loop in descending order through incoming_edges
-                if(handled_edges_for_node[incoming_node->id_].find(up_down_node.node_->id_) == handled_edges_for_node[incoming_node->id_].end()) {
-                    queue.push({incoming_node, up_down_node.node_});
+                if(!handled_edges_for_node[incoming_node->id_].contains(up_down_node.node_->id_)) {
+                    queue.emplace(incoming_node, up_down_node.node_);
                     handled_edges_for_node[incoming_node->id_].insert(up_down_node.node_->id_);
                 }
             }
         } else {
             for (auto outgoing_node : up_down_node.node_->outgoing_edges_) { // loop in descending order through incoming_edges
-                if(handled_edges_for_node[up_down_node.node_->id_].find(outgoing_node->id_) == handled_edges_for_node[up_down_node.node_->id_].end()) {
-                    queue.push({up_down_node.node_, outgoing_node});
+                if(!handled_edges_for_node[up_down_node.node_->id_].contains(outgoing_node->id_)) {
+                    queue.emplace(up_down_node.node_, outgoing_node);
                     handled_edges_for_node[up_down_node.node_->id_].insert(outgoing_node->id_);
                 }
             }
@@ -59,15 +59,15 @@ bool is_redundant_tro_plus(const labeled_graph<hash_range>& labeled_graph, const
     const auto [u, v] = edge;
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
         for (auto w : v->incoming_edges_) {
-            if (to[w->id_] <= to[u->id_]) break;
-            if (query_reachability(labeled_graph, *u, *w)) { // add index check
+            if (to[w->id_] <= to[u->id_]) break; // add index check
+            if (query_reachability(labeled_graph, *u, *w)) {
                 return true;
             }
         }
     } else {
         for (auto w : u->outgoing_edges_) {
-            if (to[w->id_] >= to[v->id_]) break;
-            if (query_reachability(labeled_graph, *w, *v)) { // add index check
+            if (to[w->id_] >= to[v->id_]) break; // add index check
+            if (query_reachability(labeled_graph, *w, *v)) {
                 return true;
             }
         }

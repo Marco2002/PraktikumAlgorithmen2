@@ -14,7 +14,7 @@
 graph generate_example_graph_tr_test() {
     graph g = {};
     for(int i = 0; i < 15; ++i) {
-        g.nodes_.push_back(new node(i));
+        g.nodes_.emplace_back(i);
     }
 
     g.add_edge(0, 1);
@@ -50,7 +50,7 @@ graph generate_example_graph_tr_test() {
 }
 
 bool has_edge(graph& g, int from, int to) {
-    return std::find(g.nodes_[from]->outgoing_edges_.begin(), g.nodes_[from]->outgoing_edges_.end(), g.nodes_[to]) != g.nodes_[from]->outgoing_edges_.end();
+    return std::find(g.nodes_[from].outgoing_edges_.begin(), g.nodes_[from].outgoing_edges_.end(), &g.nodes_[to]) != g.nodes_[from].outgoing_edges_.end();
 }
 
 void graph_is_correct_transitive_reduction_on_example(graph& g) {
@@ -78,9 +78,9 @@ TEST(TRB, correctlyBuildTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
     tr_b_sparse(g);
 
-    for(auto n : g.nodes_) {
-        std::cout << "Node " << n->id_ << " has ";
-        for(auto e : n->outgoing_edges_) {
+    for(const auto& n : g.nodes_) {
+        std::cout << "Node " << n.id_ << " has ";
+        for(const auto e : n.outgoing_edges_) {
             std::cout << e->id_ << ", ";
         }
         std::cout << "outgoing edges" << std::endl;
@@ -94,9 +94,9 @@ TEST(TRO, correctlyBuildTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
     tr_o_sparse(g);
 
-    for(auto n : g.nodes_) {
-        std::cout << "Node " << n->id_ << " has ";
-        for(auto e : n->outgoing_edges_) {
+    for(const auto& n : g.nodes_) {
+        std::cout << "Node " << n.id_ << " has ";
+        for(const auto e : n.outgoing_edges_) {
             std::cout << e->id_ << ", ";
         }
         std::cout << "outgoing edges" << std::endl;
@@ -109,9 +109,9 @@ TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
     tr_o_plus_sparse(g);
 
-    for(auto n : g.nodes_) {
-        std::cout << "Node " << n->id_ << " has ";
-        for(auto e : n->outgoing_edges_) {
+    for(const auto& n : g.nodes_) {
+        std::cout << "Node " << n.id_ << " has ";
+        for(const auto e : n.outgoing_edges_) {
             std::cout << e->id_ << ", ";
         }
         std::cout << "outgoing edges" << std::endl;
@@ -121,22 +121,22 @@ TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
 }
 
 void build_tr_by_dfs(graph& g) {
-    for(auto n : g.nodes_) {
+    for(auto& n : g.nodes_) {
         std::unordered_set<const node*> reachable_nodes;
         std::vector<node*> nodes_to_remove;
-        for(auto m : n->outgoing_edges_) {
+        for(const auto m : n.outgoing_edges_) {
             auto reachable_from_m = find_all_reachable_nodes(*m, false);
             reachable_nodes.insert(reachable_from_m.begin(), reachable_from_m.end());
         }
 
-        for(auto m : n->outgoing_edges_) {
-            if(reachable_nodes.find(m) != reachable_nodes.end()) {
+        for(const auto m : n.outgoing_edges_) {
+            if(reachable_nodes.contains(m)) {
                 nodes_to_remove.push_back(m);
             }
         }
 
-        for(auto m : nodes_to_remove) {
-            g.remove_edge(*n, *m);
+        for(const auto m : nodes_to_remove) {
+            g.remove_edge(n, *m);
         }
     }
 }

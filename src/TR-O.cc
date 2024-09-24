@@ -4,15 +4,17 @@
 #include "dagUtil.h"
 
 #include <queue>
+#include <algorithm>
+#include <ranges>
 
 std::queue<Edge> sort_edge_tro(graph& graph, const std::vector<long>& to, const std::vector<long>& to_reverse) {
     std::queue<Edge> queue;
 
     set_edges_in_topological_order(graph, to);
 
-    for (auto node_id : to_reverse) {
-        for (auto adjacent_node : graph.nodes_[node_id]->outgoing_edges_) { // loop in ascending order
-            queue.push({graph.nodes_[node_id], adjacent_node});
+    for (const auto node_id : to_reverse) {
+        for (const auto adjacent_node : graph.nodes_[node_id].outgoing_edges_) { // loop in ascending order
+            queue.emplace(&graph.nodes_[node_id], adjacent_node);
         }
     }
 
@@ -22,12 +24,9 @@ std::queue<Edge> sort_edge_tro(graph& graph, const std::vector<long>& to, const 
 template <size_t hash_range>
 bool is_redundant_tro(const labeled_graph<hash_range>& labeled_graph, const Edge& edge, const std::vector<long>& to) {
     const auto [u, v] = edge;
-    for (auto outgoing_from_u : u->outgoing_edges_) {
-        if (outgoing_from_u->id_ < v->id_ && query_reachability(labeled_graph, *outgoing_from_u, *v)) { // add index check
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(u->outgoing_edges_, [&labeled_graph, &to, &v](auto const& outgoing_from_u) {
+        return to[outgoing_from_u->id_] < to[v->id_] && query_reachability(labeled_graph, *outgoing_from_u, *v);
+    });
 }
 
 // Algorithm 2 TR-O
@@ -36,7 +35,7 @@ void tr_o(graph& graph) {
     auto const [to, to_revere] = get_topological_order(graph); // add sorting into topological order
 
     auto queue = sort_edge_tro(graph, to, to_revere);
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
+    const auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
 
     while(!queue.empty()) {
         auto edge = queue.front();
