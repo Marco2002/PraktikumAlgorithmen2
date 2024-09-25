@@ -38,6 +38,8 @@ graph read_gra_file(const std::string& filename) {
         g.nodes_.emplace_back(i); // Create nodes with id
     }
 
+    std::vector<std::unordered_set<long>> handled_edges_for_node(num_nodes);
+
     // Read each node's edges
     while (std::getline(file, line)) {
         if (line.empty()) continue;
@@ -49,14 +51,23 @@ graph read_gra_file(const std::string& filename) {
 
         if (node_id >= num_nodes) throw std::runtime_error("Node ID exceeds number of nodes.");
 
+        std::set<long> seen_neighbors; // To track added edges for this node
+
         long neighbor_id;
         while (iss >> neighbor_id) {
             // read next word
             if (neighbor_id == '#')  break;
             if (neighbor_id >= num_nodes) throw std::runtime_error("Neighbor ID exceeds number of nodes.");
 
+            // Ignore self-loops
+            if (node_id == neighbor_id) continue;
+
+            // Check if the edge has already been added
+            if (seen_neighbors.find(neighbor_id) != seen_neighbors.end()) continue;
+
             // Add edge from node_id to neighbor_id
             g.add_edge(node_id, neighbor_id);
+            seen_neighbors.insert(neighbor_id); // Mark the edge as added
         }
     }
     return g;
@@ -188,9 +199,9 @@ TEST(evaluate, go) {
     execute_test_on_graph("go", "gra");
 }
 
-// TEST(evaluate, citPatents2) {
-//     execute_test_on_graph("cit-Patents2", "txt");
-// }
+TEST(evaluate, citPatents2) {
+    execute_test_on_graph("cit-Patents", "txt");
+}
 
 TEST(TRO_PLUS, time_tests) {
     int number_of_nodes = 20000;

@@ -92,3 +92,24 @@ std::unordered_set<const node*> find_all_reachable_nodes(const node& u, const bo
 
     return visited;
 }
+
+void build_tr_by_dfs(graph& g) {
+    for(auto& n : g.nodes_) {
+        std::unordered_set<const node*> reachable_nodes;
+        std::vector<node*> nodes_to_remove;
+        for(const auto m : n.outgoing_edges_) {
+            auto reachable_from_m = find_all_reachable_nodes(*m, false);
+            reachable_nodes.insert(reachable_from_m.begin(), reachable_from_m.end());
+        }
+
+        for(const auto m : n.outgoing_edges_) {
+            if(reachable_nodes.contains(m)) {
+                nodes_to_remove.push_back(m);
+            }
+        }
+
+        for(const auto m : nodes_to_remove) {
+            g.remove_edge(n, *m);
+        }
+    }
+}

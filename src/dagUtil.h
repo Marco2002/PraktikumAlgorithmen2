@@ -12,3 +12,5 @@ void set_edges_in_topological_order(graph& dag, const std::vector<long>& to);
 bool all_nodes_edges_are_in_topological_order(graph const& graph);
 
 std::unordered_set<const node*> find_all_reachable_nodes(const node& u, bool include_root = true);
+
+void build_tr_by_dfs(graph& g);
