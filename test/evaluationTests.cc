@@ -213,10 +213,3 @@ TEST(TRO_PLUS, time_tests) {
 
     tr_o_plus_dense(g);
 }
-
-// TODOs to improve performance
-// Store node objects directly in graph to avoid pointer indirection.
-// Replace edge pointers in node with node indices
-// Consider optimizing remove_edge for faster deletion.
-// Use std::array for labels if sizes are fixed
-// make add_edge, remove_edge and operator=== inline
