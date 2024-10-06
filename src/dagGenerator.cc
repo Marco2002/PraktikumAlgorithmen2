@@ -144,17 +144,11 @@ graph generate_graph(const long number_of_nodes, const long long number_of_edges
     return dag;
 }
 
-std::vector<ConstEdge> generate_extra_edges(graph const& dag, long long number_of_edges) {
+std::vector<ConstEdge> generate_queries(graph const& dag, long long number_of_edges, const std::vector<long>& to_reverse) {
     std::uniform_int_distribution<long> node_distribution(0,dag.nodes_.size()-1);
-    std::unordered_set<std::tuple<long, long>, hash_tuple>  existing_edges = {};
-    std::vector<std::tuple<const node*, const node*>> generated_edges = {};
-    // add so exisiting edges to generated_edges
-    for(auto const& n : dag.nodes_) {
-        for(auto const m : n.outgoing_edges_) {
-            existing_edges.insert(std::make_tuple(n.id_, m->id_));
-        }
-    }
-    // generate random new edges that don't invalidate current topological order
+    std::unordered_set<std::tuple<long, long>, hash_tuple>  existing_queries = {};
+    std::vector<std::tuple<const node*, const node*>> generated_queries = {};
+
     for(long long i = 0; i < number_of_edges; ++i) {
         // generate two random indexes
         long a, b;
@@ -164,16 +158,16 @@ std::vector<ConstEdge> generate_extra_edges(graph const& dag, long long number_o
             a = node_distribution(rng);
             b = node_distribution(rng);
 
-            from = &(dag.nodes_[std::min(a, b)]);
-            to = &(dag.nodes_[std::max(a, b)]);
+            from = &dag.nodes_[to_reverse[std::min(a, b)]];
+            to = &(dag.nodes_[to_reverse[std::max(a, b)]]);
         // if the generated edge is already in the graph, or was already generated before or is a self pointing edge,
         // then the edge is invalid and needs to be regenerated
         } while (from == to
-            || ( existing_edges.contains(std::make_tuple(from->id_, to->id_))));
+            || ( existing_queries.contains(std::make_tuple(from->id_, to->id_))));
 
-        existing_edges.insert(std::make_tuple(from->id_, to->id_));
-        generated_edges.emplace_back(from, to);
+        existing_queries.insert(std::make_tuple(from->id_, to->id_));
+        generated_queries.emplace_back(from, to);
     }
-    return generated_edges;
+    return generated_queries;
 }
 

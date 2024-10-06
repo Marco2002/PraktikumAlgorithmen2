@@ -195,8 +195,9 @@ TEST(BFL, queringWorksOnLargeGeneratedGraphs) {
     // seed graph generator randomly
     set_seed(std::chrono::system_clock::now().time_since_epoch().count());
     auto dag = generate_graph(num_of_nodes, num_of_edges, true);
+    auto [to, to_reverse] = get_topological_order(dag);
 
-    auto queries = generate_extra_edges(dag, num_of_queries);
+    auto queries = generate_queries(dag, num_of_queries, to_reverse);
 
     auto h = [](const node* n) { return n->id_ % hash_range; };
     const auto labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
