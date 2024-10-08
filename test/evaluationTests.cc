@@ -204,8 +204,8 @@ TEST(evaluate, citPatents2) {
 }
 
 TEST(TRO_PLUS, time_tests) {
-    int number_of_nodes = 20000;
-    int number_of_edges = 86000;
+    int number_of_nodes = 200000;
+    int number_of_edges = 860000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
