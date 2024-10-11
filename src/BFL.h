@@ -5,6 +5,8 @@
 #include <functional>
 #include <utility>
 #include <iostream>
+#include <unordered_set>
+#include <stack>
 
 using namespace graphs;
 
@@ -28,7 +30,6 @@ struct labeled_graph {
     labeled_graph(graph& graph, LabelDiscovery label_discovery, LabelFinish label_finish, LabelIn<hash_range> label_in, LabelOut<hash_range> label_out)
         : graph_(graph), label_discovery_(std::move(label_discovery)), label_finish_(std::move(label_finish)), label_in_(label_in), label_out_(label_out) {}
 };
-
 
 std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_search(const graph& g);
 
@@ -80,36 +81,13 @@ labeled_graph<hash_range> build_labeled_graph(graph& graph, const std::function<
 
 template <size_t hash_range>
 bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v) {
-
-    if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {
-        // std::cout << "reachability confirmed by label_discovery and label_finish" << std::endl;
-        return true;
-    }
-    // if L_out(v) !subset_of L_out(u) or L_in(u) !subset_of L_in(v)
-    if((graph.label_out_[v.id_] & graph.label_out_[u.id_]) != graph.label_out_[v.id_]
-        || (graph.label_in_[u.id_] & graph.label_in_[v.id_]) != graph.label_in_[u.id_]) {
-        // std::cout << "reachability denied by label_in and label_out" << std::endl;
-        return false;
-    }
-
-    std::vector<bool> visited(graph.graph_.nodes_.size());
-    visited[u.id_] = true;
-
-    for(auto const w : u.outgoing_edges_) {
-        if(visited[w->id_]) continue;
-
-        if(query_reachability<hash_range>(graph, *w, v, visited)) {
-            // std::cout << "reachability confirmed by a (possibly) early stopped DFS" << std::endl;
-            return true;
-        }
-    }
-    // std::cout << "reachability denied by a (possibly) early stopped DFS" << std::endl;
-    return false;
+    std::unordered_set<long> visited;
+    return query_reachability<hash_range>(graph, u, v, visited);
 }
 
 template <size_t hash_range>
-bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v, std::vector<bool>& visited) {
-    visited[u.id_] = true;
+bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v, std::unordered_set<long>& visited) {
+    visited.insert(u.id_);
 
     if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {
         // std::cout << "reachability confirmed by label_discovery and label_finish" << std::endl;
@@ -121,10 +99,10 @@ bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, c
         // std::cout << "reachability denied by label_in and label_out" << std::endl;
         return false;
     }
-    for(auto const w : u.outgoing_edges_) {
-        if(visited[w->id_]) continue;
+    for (auto const w : u.outgoing_edges_) {
+        if (visited.find(w->id_) != visited.end()) continue;
 
-        if(query_reachability<hash_range>(graph, *w, v, visited)) {
+        if (query_reachability<hash_range>(graph, *w, v, visited)) {
             // std::cout << "reachability confirmed by a (possibly) early stopped DFS" << std::endl;
             return true;
         }

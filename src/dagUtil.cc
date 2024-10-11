@@ -1,8 +1,10 @@
 #include "dagUtil.h"
 
+#include <random>
 #include <chrono>
 #include <iostream>
 #include <stack>
+#include <queue>
 
 /**
  * sorts the given dag in topological order and sets the id_ of each node to its position in the topological order
@@ -13,7 +15,7 @@ NodeOrder get_topological_order(graph& dag) {
     // the algorithm used for creating a topological order of nodes is Kahn's Algorithm
     std::vector<long> topological_order(dag.nodes_.size());
     std::vector<long> topological_order_reverse(dag.nodes_.size());
-    std::vector<const node*> nodes_without_incoming_edge = {};
+    std::queue<const node*> nodes_without_incoming_edge = {};
     std::vector<long> num_of_visited_edges_for_node(dag.nodes_.size(), 0); // this map keeps track of the number of visited edges by Kahn's Algorithm for each node
     long long visited_edges_total = 0; // this variable keeps track of the total number of visited edges
     long current_index = 0;
@@ -21,14 +23,14 @@ NodeOrder get_topological_order(graph& dag) {
     // Look for all nodes that have no incoming edges and store them in nodes_without_incoming_edge
     for(auto const& node : dag.nodes_) {
         if(node.incoming_edges_.empty()) {
-            nodes_without_incoming_edge.push_back(&node);
+            nodes_without_incoming_edge.push(&node);
         }
     }
     // Kahn's Algorithm
     while(!nodes_without_incoming_edge.empty()) {
         // get the last node n from the nodes without incoming edge
-        const node* n = nodes_without_incoming_edge.back();
-        nodes_without_incoming_edge.pop_back();
+        const node* n = nodes_without_incoming_edge.front();
+        nodes_without_incoming_edge.pop();
 
         // set the index of the current node
         topological_order[n->id_] = current_index;
@@ -43,7 +45,7 @@ NodeOrder get_topological_order(graph& dag) {
 
             // check if node m has no more incoming edges and if so add it to the topological order
             if(num_of_visited_edges_for_node[m->id_] == m->incoming_edges_.size()) {
-                nodes_without_incoming_edge.push_back(m);
+                nodes_without_incoming_edge.push(m);
             }
         }
     }
@@ -112,4 +114,67 @@ void build_tr_by_dfs(graph& g) {
             g.remove_edge(n, *m);
         }
     }
+}
+
+graph copy_graph(graph& g) {
+    graph new_graph;
+    new_graph.nodes_.resize(g.nodes_.size());
+    new_graph.number_of_edges_ = g.number_of_edges_;
+
+    for (auto i = 0; i < g.nodes_.size(); ++i) {
+        new_graph.nodes_[i].id_ = g.nodes_[i].id_;
+    }
+
+    for (auto i = 0; i < g.nodes_.size(); ++i) {
+        for (auto const& m : g.nodes_[i].outgoing_edges_) {
+            new_graph.add_edge(i, m->id_);
+        }
+    }
+
+    return std::move(new_graph);
+}
+
+void shuffle_graph(graph& g) {
+    // Create a vector of pointers to nodes for shuffling
+    std::vector<node *> node_ptrs(g.nodes_.size());
+    for (size_t i = 0; i < g.nodes_.size(); ++i) {
+        node_ptrs[i] = &g.nodes_[i];  // Store pointers to each node
+    }
+
+    // Shuffle the pointers using a random engine
+    std::random_device rd;  // Obtain a random number from hardware
+    std::mt19937 eng(rd()); // Seed the generator
+    std::shuffle(node_ptrs.begin(), node_ptrs.end(), eng);
+
+    // Create a temporary vector to hold the shuffled nodes
+    std::vector<node> shuffled_nodes(g.nodes_.size());
+    std::vector<long> new_indexes(g.nodes_.size());
+
+    // Update shuffled_nodes with the shuffled pointers and set their ids
+    for (size_t i = 0; i < node_ptrs.size(); ++i) {
+        shuffled_nodes[i] = *node_ptrs[i]; // Copy the content of the node
+        new_indexes[shuffled_nodes[i].id_] = i;
+        shuffled_nodes[i].id_ = i;          // Set the new id to the index
+    }
+
+    // Update outgoing and incoming edges to point to the new nodes
+    for (size_t i = 0; i < node_ptrs.size(); ++i) {
+        node &current_node = shuffled_nodes[i];
+        // Update outgoing edges
+        for (auto &outgoing: current_node.outgoing_edges_) {
+            outgoing = &shuffled_nodes[new_indexes[outgoing->id_]];
+        }
+        // Update incoming edges
+        for (auto &incoming: current_node.incoming_edges_) {
+            incoming = &shuffled_nodes[new_indexes[incoming->id_]];
+
+        }
+        // shuffle outgoing edges order
+        std::shuffle(current_node.outgoing_edges_.begin(), current_node.outgoing_edges_.end(), eng);
+        // shuffle incoming edges order
+        std::shuffle(current_node.incoming_edges_.begin(), current_node.incoming_edges_.end(), eng);
+    }
+
+    // Replace the original nodes_ with the shuffled nodes
+    g.nodes_ = std::move(shuffled_nodes);
 }

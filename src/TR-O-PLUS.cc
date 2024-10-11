@@ -31,21 +31,23 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, c
         return a.degree < b.degree;
     });
 
-    std::vector<std::unordered_set<long>> handled_edges_for_node(graph.nodes_.size());
+    std::unordered_set<Edge, EdgeHash> handled_edges(graph.nodes_.size());
 
     for(auto const& up_down_node : up_and_down_nodes) {
         if(up_down_node.is_up_) {
             for (auto incoming_node : up_down_node.node_->incoming_edges_) { // loop in descending order through incoming_edges
-                if(!handled_edges_for_node[incoming_node->id_].contains(up_down_node.node_->id_)) {
+                auto edge = std::make_tuple(incoming_node, up_down_node.node_);
+                if(!handled_edges.contains(edge)) {
                     queue.emplace(incoming_node, up_down_node.node_);
-                    handled_edges_for_node[incoming_node->id_].insert(up_down_node.node_->id_);
+                    handled_edges.insert(edge);
                 }
             }
         } else {
             for (auto outgoing_node : up_down_node.node_->outgoing_edges_) { // loop in descending order through incoming_edges
-                if(!handled_edges_for_node[up_down_node.node_->id_].contains(outgoing_node->id_)) {
+                auto edge = std::make_tuple(up_down_node.node_, outgoing_node);
+                if(!handled_edges.contains(edge)) {
                     queue.emplace(up_down_node.node_, outgoing_node);
-                    handled_edges_for_node[up_down_node.node_->id_].insert(outgoing_node->id_);
+                    handled_edges.insert(edge);
                 }
             }
         }
@@ -78,10 +80,9 @@ bool is_redundant_tro_plus(const labeled_graph<hash_range>& labeled_graph, const
 // Algorithm 3 TR-O-Plus
 template <size_t hash_range>
 void tr_o_plus(graph& graph) {
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return std::hash<long>{}(n->id_) % hash_range; }, hash_range*10);
     auto const [to, to_reverse] = get_topological_order(graph); // add sorting into topological order
     auto queue = sort_edge_tro_plus(graph, to, to_reverse);
-
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
 
     while(!queue.empty()) {
         auto edge = queue.front();

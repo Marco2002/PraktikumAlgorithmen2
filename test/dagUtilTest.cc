@@ -32,8 +32,8 @@ bool graph_is_in_topological_order(graph const& graph, std::vector<long> const& 
 }
 
 TEST(dagUtil, findsValidTopologicalOrder) {
-    int num_of_nodes = 1000;
-    int num_of_edges = 3000;
+    int num_of_nodes = 10000;
+    int num_of_edges = 20000;
     set_seed(21012024);
     graph dag = generate_graph(num_of_nodes, num_of_edges, true, true);
 
