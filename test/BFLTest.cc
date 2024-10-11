@@ -65,59 +65,59 @@ TEST(BFL, labelsAreCorrectlyBuilt) {
     auto g_labeled = generate_example_graph(g);
 
     // check that discovery labels are correct
-    ASSERT_EQ(g_labeled.label_discovery_[0], 1);
-    ASSERT_EQ(g_labeled.label_discovery_[1], 2);
-    ASSERT_EQ(g_labeled.label_discovery_[2], 12);
-    ASSERT_EQ(g_labeled.label_discovery_[3], 3);
-    ASSERT_EQ(g_labeled.label_discovery_[4], 7);
-    ASSERT_EQ(g_labeled.label_discovery_[5], 9);
-    ASSERT_EQ(g_labeled.label_discovery_[6], 4);
-    ASSERT_EQ(g_labeled.label_discovery_[7], 15);
-    ASSERT_EQ(g_labeled.label_discovery_[8], 16);
-    ASSERT_EQ(g_labeled.label_discovery_[9], 17);
-    ASSERT_EQ(g_labeled.label_discovery_[10], 19);
-    ASSERT_EQ(g_labeled.label_discovery_[11], 20);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[0]), 1);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[1]), 2);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[2]), 12);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[3]), 3);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[4]), 7);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[5]), 9);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[6]), 4);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[7]), 15);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[8]), 16);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[9]), 17);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[10]), 19);
+    ASSERT_EQ(std::get<0>(g_labeled.bfl_label_[11]), 20);
     // check that finish labels are correct
-    ASSERT_EQ(g_labeled.label_finish_[0], 14);
-    ASSERT_EQ(g_labeled.label_finish_[1], 11);
-    ASSERT_EQ(g_labeled.label_finish_[2], 13);
-    ASSERT_EQ(g_labeled.label_finish_[3], 6);
-    ASSERT_EQ(g_labeled.label_finish_[4], 8);
-    ASSERT_EQ(g_labeled.label_finish_[5], 10);
-    ASSERT_EQ(g_labeled.label_finish_[6], 5);
-    ASSERT_EQ(g_labeled.label_finish_[7], 24);
-    ASSERT_EQ(g_labeled.label_finish_[8], 23);
-    ASSERT_EQ(g_labeled.label_finish_[9], 18);
-    ASSERT_EQ(g_labeled.label_finish_[10], 22);
-    ASSERT_EQ(g_labeled.label_finish_[11], 21);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[0]), 14);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[1]), 11);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[2]), 13);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[3]), 6);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[4]), 8);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[5]), 10);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[6]), 5);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[7]), 24);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[8]), 23);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[9]), 18);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[10]), 22);
+    ASSERT_EQ(std::get<1>(g_labeled.bfl_label_[11]), 21);
     // check that in labels are correct
     // the bitset represents the inclusion of the numbers {2, 1, 0} in the label
     // so bitset 100 means that the label only contains the number 2
-    ASSERT_EQ(g_labeled.label_in_[0], std::bitset<3>("100"));
-    ASSERT_EQ(g_labeled.label_in_[1], std::bitset<3>("101"));
-    ASSERT_EQ(g_labeled.label_in_[2], std::bitset<3>("111"));
-    ASSERT_EQ(g_labeled.label_in_[3], std::bitset<3>("111"));
-    ASSERT_EQ(g_labeled.label_in_[4], std::bitset<3>("111"));
-    ASSERT_EQ(g_labeled.label_in_[5], std::bitset<3>("111"));
-    ASSERT_EQ(g_labeled.label_in_[6], std::bitset<3>("111"));
-    ASSERT_EQ(g_labeled.label_in_[7], std::bitset<3>("010"));
-    ASSERT_EQ(g_labeled.label_in_[8], std::bitset<3>("010"));
-    ASSERT_EQ(g_labeled.label_in_[9], std::bitset<3>("110"));
-    ASSERT_EQ(g_labeled.label_in_[10], std::bitset<3>("110"));
-    ASSERT_EQ(g_labeled.label_in_[11], std::bitset<3>("110"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[0]), std::bitset<3>("100"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[1]), std::bitset<3>("101"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[2]), std::bitset<3>("111"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[3]), std::bitset<3>("111"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[4]), std::bitset<3>("111"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[5]), std::bitset<3>("111"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[6]), std::bitset<3>("111"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[7]), std::bitset<3>("010"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[8]), std::bitset<3>("010"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[9]), std::bitset<3>("110"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[10]), std::bitset<3>("110"));
+    ASSERT_EQ(std::get<2>(g_labeled.bfl_label_[11]), std::bitset<3>("110"));
     // check that out labels are correct
-    ASSERT_EQ(g_labeled.label_out_[0], std::bitset<3>("111"));
-    ASSERT_EQ(g_labeled.label_out_[1], std::bitset<3>("011"));
-    ASSERT_EQ(g_labeled.label_out_[2], std::bitset<3>("011"));
-    ASSERT_EQ(g_labeled.label_out_[3], std::bitset<3>("010"));
-    ASSERT_EQ(g_labeled.label_out_[4], std::bitset<3>("010"));
-    ASSERT_EQ(g_labeled.label_out_[5], std::bitset<3>("010"));
-    ASSERT_EQ(g_labeled.label_out_[6], std::bitset<3>("010"));
-    ASSERT_EQ(g_labeled.label_out_[7], std::bitset<3>("111"));
-    ASSERT_EQ(g_labeled.label_out_[8], std::bitset<3>("110"));
-    ASSERT_EQ(g_labeled.label_out_[9], std::bitset<3>("110"));
-    ASSERT_EQ(g_labeled.label_out_[10], std::bitset<3>("100"));
-    ASSERT_EQ(g_labeled.label_out_[11], std::bitset<3>("100"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[0]), std::bitset<3>("111"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[1]), std::bitset<3>("011"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[2]), std::bitset<3>("011"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[3]), std::bitset<3>("010"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[4]), std::bitset<3>("010"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[5]), std::bitset<3>("010"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[6]), std::bitset<3>("010"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[7]), std::bitset<3>("111"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[8]), std::bitset<3>("110"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[9]), std::bitset<3>("110"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[10]), std::bitset<3>("100"));
+    ASSERT_EQ(std::get<3>(g_labeled.bfl_label_[11]), std::bitset<3>("100"));
 }
 
 void assert_query(labeled_graph<3>& g, const int id_from, const int id_to, const bool expected_result, const std::string& expected_output) {
