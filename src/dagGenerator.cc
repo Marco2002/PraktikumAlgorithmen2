@@ -96,49 +96,7 @@ graph generate_graph(const long number_of_nodes, const long long number_of_edges
     }
 
     if(should_be_shuffled) {
-        // Create a vector of pointers to nodes for shuffling
-        std::vector<node*> node_ptrs(dag.nodes_.size());
-        for (size_t i = 0; i < dag.nodes_.size(); ++i) {
-            node_ptrs[i] = &dag.nodes_[i];  // Store pointers to each node
-        }
-
-        // Shuffle the pointers using a random engine
-        std::random_device rd;  // Obtain a random number from hardware
-        std::mt19937 eng(rd()); // Seed the generator
-        std::shuffle(node_ptrs.begin(), node_ptrs.end(), eng);
-
-        // Create a temporary vector to hold the shuffled nodes
-        std::vector<node> shuffled_nodes(dag.nodes_.size());
-
-        // Update shuffled_nodes with the shuffled pointers and set their ids
-        for (size_t i = 0; i < node_ptrs.size(); ++i) {
-            shuffled_nodes[i] = *node_ptrs[i]; // Copy the content of the node
-            shuffled_nodes[i].id_ = i;          // Set the new id to the index
-        }
-
-        // Update outgoing and incoming edges to point to the new nodes
-        for (size_t i = 0; i < node_ptrs.size(); ++i) {
-            node& current_node = shuffled_nodes[i];
-            // Update outgoing edges
-            for (auto& outgoing : current_node.outgoing_edges_) {
-                // Find the index of the original outgoing node and update the pointer
-                auto it = std::find(node_ptrs.begin(), node_ptrs.end(), outgoing);
-                if (it != node_ptrs.end()) {
-                    outgoing = &shuffled_nodes[std::distance(node_ptrs.begin(), it)];
-                }
-            }
-            // Update incoming edges
-            for (auto& incoming : current_node.incoming_edges_) {
-                // Find the index of the original incoming node and update the pointer
-                auto it = std::find(node_ptrs.begin(), node_ptrs.end(), incoming);
-                if (it != node_ptrs.end()) {
-                    incoming = &shuffled_nodes[std::distance(node_ptrs.begin(), it)];
-                }
-            }
-        }
-
-        // Replace the original nodes_ with the shuffled nodes
-        dag.nodes_ = std::move(shuffled_nodes);
+        shuffle_graph(dag);
     }
 
     return dag;

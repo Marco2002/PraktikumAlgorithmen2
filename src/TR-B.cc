@@ -22,15 +22,19 @@ template <size_t hash_range>
 bool is_redundant(const labeled_graph<hash_range>& labeled_graph, const Edge& edge) {
     const auto [u, v] = edge;
     // check weather any of the outgoing edges from u can reach v
-    return std::ranges::any_of(u->outgoing_edges_, [&labeled_graph, &v](auto const& outgoing_from_u) {
-        return outgoing_from_u != v && query_reachability(labeled_graph, *outgoing_from_u, *v);
-    });
+    for(auto const& w : u->outgoing_edges_) {
+        if(w == v) continue;
+        if(query_reachability(labeled_graph, *w, *v)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // Algorithm 1 TR-B
 template <size_t hash_range>
 void tr_b(graph& graph) {
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return std::hash<long>{}(n->id_) % hash_range; }, hash_range*10);
     auto queue = sort_edge(labeled_graph.graph_);
 
     while(!queue.empty()) {

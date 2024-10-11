@@ -1,6 +1,3 @@
-TR-B for sparse graphs: 3078244
-TR-O for sparse graphs: 2663029
-TR-O-PLUS for sparse graphs: 2318061
-TR-B for dense graphs: 2985043
-TR-O for dense graphs: 2729156
-TR-O-PLUS for dense  graphs: 2288411
+TR-B for dense graphs: 7777
+TR-O for dense graphs: 4561
+TR-O-PLUS for dense  graphs: 3670

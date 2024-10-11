@@ -69,4 +69,13 @@ struct graph {
 
 using Edge = std::tuple<node*, node*>;
 using ConstEdge = std::tuple<const node*, const node*>;
+
+struct EdgeHash {
+    std::size_t operator()(const std::tuple<node*, node*>& edge) const {
+        // Use std::hash for pointers and combine the results
+        auto hash1 = std::hash<node*>{}(std::get<0>(edge));
+        auto hash2 = std::hash<node*>{}(std::get<1>(edge));
+        return hash1 ^ (hash2 << 1);  // Combine the two hashes
+    }
+};
 } // namespace dag - contains struct for nodes and edges

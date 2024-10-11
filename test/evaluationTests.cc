@@ -170,23 +170,27 @@ void execute_test_on_graph(const std::string& graph_name, const std::string& fil
         std::cerr << "Error opening file!" << std::endl;
     }
 
-    auto g = read_graph(graph_name, filetype);
-    auto duration = evaluate(g, tr_b_sparse, "tr_b_sparse");
-    resultsFile << "TR-B for sparse graphs: " << duration.count() << "\n";
-    g = read_graph(graph_name, filetype);
-    duration = evaluate(g, tr_o_sparse, "tr_o_sparse");
-    resultsFile << "TR-O for sparse graphs: " << duration.count() << "\n";
-    g = read_graph(graph_name, filetype);
-    duration = evaluate(g, tr_o_plus_sparse, "tr_o_plus_sparse");
-    resultsFile << "TR-O-PLUS for sparse graphs: " << duration.count() << "\n";
+//    auto g = read_graph(graph_name, filetype);
+//    auto duration = evaluate(g, tr_b_sparse, "tr_b_sparse");
+//    resultsFile << "TR-B for sparse graphs: " << duration.count() << "\n";
+//    g = read_graph(graph_name, filetype);
+//    duration = evaluate(g, tr_o_sparse, "tr_o_sparse");
+//    resultsFile << "TR-O for sparse graphs: " << duration.count() << "\n";
+//    g = read_graph(graph_name, filetype);
+//    duration = evaluate(g, tr_o_plus_sparse, "tr_o_plus_sparse");
+//    resultsFile << "TR-O-PLUS for sparse graphs: " << duration.count() << "\n";
 
-    g = read_graph(graph_name, filetype);
-    duration = evaluate(g, tr_b_dense, "tr_b_dense");
+
+    auto g = read_graph(graph_name, filetype);
+    shuffle_graph(g);
+    auto duration = evaluate(g, tr_b_dense, "tr_b_dense");
     resultsFile << "TR-B for dense graphs: " << duration.count() << "\n";
     g = read_graph(graph_name, filetype);
+    shuffle_graph(g);
     duration = evaluate(g, tr_o_dense, "tr_o_dense");
     resultsFile << "TR-O for dense graphs: " << duration.count() << "\n";
     g = read_graph(graph_name, filetype);
+    shuffle_graph(g);
     duration = evaluate(g, tr_o_plus_dense, "tr_o_plus_dense");
     resultsFile << "TR-O-PLUS for dense  graphs: " << duration.count() << "\n";
 }
@@ -199,7 +203,7 @@ TEST(evaluate, go) {
     execute_test_on_graph("go", "gra");
 }
 
-TEST(evaluate, citPatents2) {
+TEST(evaluate, citPatents) {
     execute_test_on_graph("cit-Patents", "txt");
 }
 
@@ -211,5 +215,5 @@ TEST(TRO_PLUS, time_tests) {
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
 
 
-    tr_o_plus_dense(g);
+    // tr_o_plus_dense(g);
 }
