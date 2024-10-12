@@ -10,11 +10,14 @@
 #include "dagGenerator.h"
 
 std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&), const std::string& algorithm_name) {
+    reset();
+    auto g = copy_graph(graph);
     auto const start = std::chrono::high_resolution_clock::now();
-    algorithm(graph);
+    algorithm(g);
     auto const stop = std::chrono::high_resolution_clock::now();
     auto const duration = duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << "calculated transient reduction " << algorithm_name <<". TIME: " << duration.count() << "microseconds\n";
+    log();
     return duration;
 }
 
@@ -182,17 +185,17 @@ void execute_test_on_graph(const std::string& graph_name, const std::string& fil
 
 
     auto g = read_graph(graph_name, filetype);
-    shuffle_graph(g);
+    shuffle_graph(g, 12102024);
     auto duration = evaluate(g, tr_b_dense, "tr_b_dense");
     resultsFile << "TR-B for dense graphs: " << duration.count() << "\n";
-    g = read_graph(graph_name, filetype);
-    shuffle_graph(g);
     duration = evaluate(g, tr_o_dense, "tr_o_dense");
     resultsFile << "TR-O for dense graphs: " << duration.count() << "\n";
-    g = read_graph(graph_name, filetype);
-    shuffle_graph(g);
     duration = evaluate(g, tr_o_plus_dense, "tr_o_plus_dense");
-    resultsFile << "TR-O-PLUS for dense  graphs: " << duration.count() << "\n";
+    resultsFile << "TR-O-PLUS for dense graphs: " << duration.count() << "\n";
+//    g = read_graph(graph_name, filetype);
+//    shuffle_graph(g);
+//    duration = evaluate(g, build_tr_by_dfs, "build_tr_by_dfs");
+//    resultsFile << "DFS for dense graphs: " << duration.count() << "\n";
 }
 
 TEST(evaluate, amaze) {
@@ -205,6 +208,10 @@ TEST(evaluate, go) {
 
 TEST(evaluate, citPatents) {
     execute_test_on_graph("cit-Patents", "txt");
+}
+
+TEST(evaluate, citeseerx) {
+    execute_test_on_graph("citeseerx", "gra");
 }
 
 TEST(TRO_PLUS, time_tests) {

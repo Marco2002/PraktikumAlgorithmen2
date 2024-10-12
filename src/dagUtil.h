@@ -15,4 +15,6 @@ std::unordered_set<const node*> find_all_reachable_nodes(const node& u, bool inc
 
 void build_tr_by_dfs(graph& g);
 
-void shuffle_graph(graph& g);
+graph copy_graph(graph& g);
+
+void shuffle_graph(graph& g, long seed);

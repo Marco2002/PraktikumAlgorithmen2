@@ -7,6 +7,7 @@
 #include <iostream>
 #include <unordered_set>
 #include <stack>
+#include <queue>
 
 using namespace graphs;
 
@@ -79,14 +80,75 @@ labeled_graph<hash_range> build_labeled_graph(graph& graph, const std::function<
     return labeled_graph<hash_range>(graph, label_discovery, label_finish, label_in, label_out);
 }
 
+class ReachabilityLogger {
+public:
+    static ReachabilityLogger& getInstance() {
+        static ReachabilityLogger instance;
+        return instance;
+    }
+
+    void increment_no_dfs() {
+        ++query_reachability_no_dfs_count_;
+    }
+
+    void increment_with_dfs() {
+        ++query_reachability_with_dfs_count_;
+    }
+
+    void increment_start_dfs() {
+        ++started_dfs_count_;
+    }
+
+    void log() {
+        std::cout << "query_reachability (without DFS) called: "
+                  << query_reachability_no_dfs_count_ << " times" << std::endl;
+        std::cout << "query_reachability (with DFS) called: "
+                  << query_reachability_with_dfs_count_ << " times" << std::endl;
+        std::cout << "started dfs: "
+                  << started_dfs_count_ << " times" << std::endl;
+    }
+
+    void reset() {
+        query_reachability_no_dfs_count_ = 0;
+        query_reachability_with_dfs_count_ = 0;
+        started_dfs_count_ = 0;
+    }
+
+private:
+    int query_reachability_no_dfs_count_ = 0;
+    int query_reachability_with_dfs_count_ = 0;
+    int started_dfs_count_ = 0;
+
+    ReachabilityLogger() = default;
+    // Prevent copying
+    ReachabilityLogger(const ReachabilityLogger&) = delete;
+    ReachabilityLogger& operator=(const ReachabilityLogger&) = delete;
+};
+
 template <size_t hash_range>
 bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v) {
+    ReachabilityLogger::getInstance().increment_no_dfs();
+
+    if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {
+        // std::cout << "reachability confirmed by label_discovery and label_finish" << std::endl;
+        return true;
+    }
+    // if L_out(v) !subset_of L_out(u) or L_in(u) !subset_of L_in(v)
+    if((graph.label_out_[v.id_] & graph.label_out_[u.id_]) != graph.label_out_[v.id_]
+       || (graph.label_in_[u.id_] & graph.label_in_[v.id_]) != graph.label_in_[u.id_]) {
+        // std::cout << "reachability denied by label_in and label_out" << std::endl;
+        return false;
+    }
+
+    ReachabilityLogger::getInstance().increment_start_dfs();
+
     std::unordered_set<long> visited;
     return query_reachability<hash_range>(graph, u, v, visited);
 }
 
 template <size_t hash_range>
 bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v, std::unordered_set<long>& visited) {
+    ReachabilityLogger::getInstance().increment_with_dfs();
     visited.insert(u.id_);
 
     if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {
@@ -99,10 +161,10 @@ bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, c
         // std::cout << "reachability denied by label_in and label_out" << std::endl;
         return false;
     }
-    for (auto const w : u.outgoing_edges_) {
-        if (visited.find(w->id_) != visited.end()) continue;
+    for (auto it = u.outgoing_edges_.begin(); it != u.outgoing_edges_.end(); ++it) {
+        if (visited.find((*it)->id_) != visited.end()) continue;
 
-        if (query_reachability<hash_range>(graph, *w, v, visited)) {
+        if (query_reachability<hash_range>(graph, **it, v, visited)) {
             // std::cout << "reachability confirmed by a (possibly) early stopped DFS" << std::endl;
             return true;
         }
@@ -110,3 +172,6 @@ bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, c
     // std::cout << "reachability denied by a (possibly) early stopped DFS" << std::endl;
     return false;
 }
+
+static void log() {ReachabilityLogger::getInstance().log();}
+static void reset() {ReachabilityLogger::getInstance().reset();}

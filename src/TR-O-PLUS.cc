@@ -16,13 +16,10 @@ struct up_down_node {
 std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, const std::vector<long>& to_reverse) {
     std::queue<Edge> queue;
 
-    set_edges_in_topological_order(graph, to);
-
     std::vector<up_down_node> up_and_down_nodes;
     up_and_down_nodes.reserve(graph.nodes_.size()*2);
     // divide nodes into UP-nodes and DOWN-nodes
-    for (auto const node_id : to_reverse) {
-        auto& node = graph.nodes_[node_id];
+    for (auto& node : graph.nodes_) {
         up_and_down_nodes.emplace_back(&node, true, node.incoming_edges_.size());
         up_and_down_nodes.emplace_back(&node, false, node.outgoing_edges_.size());
     }
@@ -60,16 +57,16 @@ template <size_t hash_range>
 bool is_redundant_tro_plus(const labeled_graph<hash_range>& labeled_graph, const Edge& edge, const std::vector<long>& to) {
     const auto [u, v] = edge;
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
-        for (auto w : v->incoming_edges_) {
-            if (to[w->id_] <= to[u->id_]) break; // add index check
-            if (query_reachability(labeled_graph, *u, *w)) {
+        for (auto it = v->incoming_edges_.rbegin(); it != v->incoming_edges_.rend(); ++it) {
+            if (to[(*it)->id_] <= to[u->id_]) continue; // add index check
+            if (query_reachability(labeled_graph, *u, *(*it))) {
                 return true;
             }
         }
     } else {
-        for (auto w : u->outgoing_edges_) {
-            if (to[w->id_] >= to[v->id_]) break; // add index check
-            if (query_reachability(labeled_graph, *w, *v)) {
+        for (auto it = u->outgoing_edges_.rbegin(); it != u->outgoing_edges_.rend(); ++it) {
+            if (to[(*it)->id_] >= to[v->id_]) continue; // add index check
+            if (query_reachability(labeled_graph, *(*it), *v)) {
                 return true;
             }
         }
@@ -80,8 +77,11 @@ bool is_redundant_tro_plus(const labeled_graph<hash_range>& labeled_graph, const
 // Algorithm 3 TR-O-Plus
 template <size_t hash_range>
 void tr_o_plus(graph& graph) {
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return std::hash<long>{}(n->id_) % hash_range; }, hash_range*10);
     auto const [to, to_reverse] = get_topological_order(graph); // add sorting into topological order
+    set_edges_in_topological_order(graph, to);
+
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return std::hash<long>{}(n->id_) % hash_range; }, hash_range*10);
+
     auto queue = sort_edge_tro_plus(graph, to, to_reverse);
 
     while(!queue.empty()) {
@@ -94,5 +94,5 @@ void tr_o_plus(graph& graph) {
     }
 }
 
-void tr_o_plus_dense(graph& graph) { tr_o_plus<160>(graph); }
+void tr_o_plus_dense(graph& graph) { tr_o_plus<512>(graph); }
 void tr_o_plus_sparse(graph& graph) { tr_o_plus<64>(graph); }

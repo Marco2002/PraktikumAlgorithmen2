@@ -96,7 +96,7 @@ graph generate_graph(const long number_of_nodes, const long long number_of_edges
     }
 
     if(should_be_shuffled) {
-        shuffle_graph(dag);
+        shuffle_graph(dag, rng());
     }
 
     return dag;

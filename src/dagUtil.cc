@@ -4,7 +4,6 @@
 #include <chrono>
 #include <iostream>
 #include <stack>
-#include <queue>
 
 /**
  * sorts the given dag in topological order and sets the id_ of each node to its position in the topological order
@@ -15,7 +14,7 @@ NodeOrder get_topological_order(graph& dag) {
     // the algorithm used for creating a topological order of nodes is Kahn's Algorithm
     std::vector<long> topological_order(dag.nodes_.size());
     std::vector<long> topological_order_reverse(dag.nodes_.size());
-    std::queue<const node*> nodes_without_incoming_edge = {};
+    std::stack<const node*> nodes_without_incoming_edge = {};
     std::vector<long> num_of_visited_edges_for_node(dag.nodes_.size(), 0); // this map keeps track of the number of visited edges by Kahn's Algorithm for each node
     long long visited_edges_total = 0; // this variable keeps track of the total number of visited edges
     long current_index = 0;
@@ -29,7 +28,7 @@ NodeOrder get_topological_order(graph& dag) {
     // Kahn's Algorithm
     while(!nodes_without_incoming_edge.empty()) {
         // get the last node n from the nodes without incoming edge
-        const node* n = nodes_without_incoming_edge.front();
+        const node* n = nodes_without_incoming_edge.top();
         nodes_without_incoming_edge.pop();
 
         // set the index of the current node
@@ -119,7 +118,7 @@ void build_tr_by_dfs(graph& g) {
 graph copy_graph(graph& g) {
     graph new_graph;
     new_graph.nodes_.resize(g.nodes_.size());
-    new_graph.number_of_edges_ = g.number_of_edges_;
+    // new_graph.number_of_edges_ = g.number_of_edges_;
 
     for (auto i = 0; i < g.nodes_.size(); ++i) {
         new_graph.nodes_[i].id_ = g.nodes_[i].id_;
@@ -134,7 +133,7 @@ graph copy_graph(graph& g) {
     return std::move(new_graph);
 }
 
-void shuffle_graph(graph& g) {
+void shuffle_graph(graph& g, long seed) {
     // Create a vector of pointers to nodes for shuffling
     std::vector<node *> node_ptrs(g.nodes_.size());
     for (size_t i = 0; i < g.nodes_.size(); ++i) {
@@ -142,8 +141,7 @@ void shuffle_graph(graph& g) {
     }
 
     // Shuffle the pointers using a random engine
-    std::random_device rd;  // Obtain a random number from hardware
-    std::mt19937 eng(rd()); // Seed the generator
+    std::mt19937 eng(seed); // Seed the generator
     std::shuffle(node_ptrs.begin(), node_ptrs.end(), eng);
 
     // Create a temporary vector to hold the shuffled nodes
