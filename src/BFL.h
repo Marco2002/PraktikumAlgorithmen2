@@ -127,28 +127,28 @@ private:
 
 template <size_t hash_range>
 bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v) {
-    ReachabilityLogger::getInstance().increment_no_dfs();
+    // ReachabilityLogger::getInstance().increment_no_dfs();
 
-    if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {
-        // std::cout << "reachability confirmed by label_discovery and label_finish" << std::endl;
-        return true;
-    }
-    // if L_out(v) !subset_of L_out(u) or L_in(u) !subset_of L_in(v)
-    if((graph.label_out_[v.id_] & graph.label_out_[u.id_]) != graph.label_out_[v.id_]
-       || (graph.label_in_[u.id_] & graph.label_in_[v.id_]) != graph.label_in_[u.id_]) {
-        // std::cout << "reachability denied by label_in and label_out" << std::endl;
-        return false;
-    }
+    // if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {
+    //     // std::cout << "reachability confirmed by label_discovery and label_finish" << std::endl;
+    //     return true;
+    // }
+    // // if L_out(v) !subset_of L_out(u) or L_in(u) !subset_of L_in(v)
+    // if((graph.label_out_[v.id_] & graph.label_out_[u.id_]) != graph.label_out_[v.id_]
+    //    || (graph.label_in_[u.id_] & graph.label_in_[v.id_]) != graph.label_in_[u.id_]) {
+    //     // std::cout << "reachability denied by label_in and label_out" << std::endl;
+    //     return false;
+    // }
+    //
+    // ReachabilityLogger::getInstance().increment_start_dfs();
 
-    ReachabilityLogger::getInstance().increment_start_dfs();
-
-    std::unordered_set<long> visited;
+    std::unordered_set<long> visited(hash_range * 10);
     return query_reachability<hash_range>(graph, u, v, visited);
 }
 
 template <size_t hash_range>
 bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v, std::unordered_set<long>& visited) {
-    ReachabilityLogger::getInstance().increment_with_dfs();
+    // ReachabilityLogger::getInstance().increment_with_dfs();
     visited.insert(u.id_);
 
     if(graph.label_discovery_[u.id_] <= graph.label_discovery_[v.id_] && graph.label_finish_[v.id_] <= graph.label_finish_[u.id_]) {

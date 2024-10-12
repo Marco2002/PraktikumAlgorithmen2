@@ -8,16 +8,17 @@
 #include "TR-O-PLUS.h"
 #include "dagUtil.h"
 #include "dagGenerator.h"
+#include "MurmurHash3.h"
 
 std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&), const std::string& algorithm_name) {
-    reset();
+   //  reset();
     auto g = copy_graph(graph);
     auto const start = std::chrono::high_resolution_clock::now();
     algorithm(g);
     auto const stop = std::chrono::high_resolution_clock::now();
     auto const duration = duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << "calculated transient reduction " << algorithm_name <<". TIME: " << duration.count() << "microseconds\n";
-    log();
+   //  log();
     return duration;
 }
 
@@ -215,12 +216,15 @@ TEST(evaluate, citeseerx) {
 }
 
 TEST(TRO_PLUS, time_tests) {
-    int number_of_nodes = 200000;
-    int number_of_edges = 860000;
+    int number_of_nodes = 3700000;
+    int number_of_edges = 16500000;
 
     set_seed(12092024);
+
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
-
-
+    shuffle_graph(g, 12102024);
+    auto duration = evaluate(g, tr_b_dense, "tr_b_dense");
+    duration = evaluate(g, tr_o_dense, "tr_o_dense");
+    duration = evaluate(g, tr_o_plus_dense, "tr_o_plus_dense");
     // tr_o_plus_dense(g);
 }

@@ -1,6 +1,7 @@
 #include "TR-B.h"
 
 #include "BFL.h"
+#include "MurmurHash3.h"
 
 #include <queue>
 #include <algorithm>
@@ -33,7 +34,7 @@ bool is_redundant(const labeled_graph<hash_range>& labeled_graph, const Edge& ed
 // Algorithm 1 TR-B
 template <size_t hash_range>
 void tr_b(graph& graph) {
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return std::hash<long>{}(n->id_) % hash_range; }, hash_range*10);
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
     auto queue = sort_edge(labeled_graph.graph_);
 
     while(!queue.empty()) {

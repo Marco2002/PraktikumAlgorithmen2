@@ -1,6 +1,7 @@
 #include "TR-O-PLUS.h"
 
 #include "dagUtil.h"
+#include "MurmurHash3.h"
 
 #include <queue>
 #include <unordered_set>
@@ -57,15 +58,15 @@ template <size_t hash_range>
 bool is_redundant_tro_plus(const labeled_graph<hash_range>& labeled_graph, const Edge& edge, const std::vector<long>& to) {
     const auto [u, v] = edge;
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
-        for (auto it = v->incoming_edges_.rbegin(); it != v->incoming_edges_.rend(); ++it) {
-            if (to[(*it)->id_] <= to[u->id_]) continue; // add index check
+        for (auto it = v->incoming_edges_.begin(); it != v->incoming_edges_.end(); ++it) {
+            if (to[(*it)->id_] <= to[u->id_]) break; // add index check
             if (query_reachability(labeled_graph, *u, *(*it))) {
                 return true;
             }
         }
     } else {
-        for (auto it = u->outgoing_edges_.rbegin(); it != u->outgoing_edges_.rend(); ++it) {
-            if (to[(*it)->id_] >= to[v->id_]) continue; // add index check
+        for (auto it = u->outgoing_edges_.begin(); it != u->outgoing_edges_.end(); ++it) {
+            if (to[(*it)->id_] >= to[v->id_]) break; // add index check
             if (query_reachability(labeled_graph, *(*it), *v)) {
                 return true;
             }
@@ -80,7 +81,7 @@ void tr_o_plus(graph& graph) {
     auto const [to, to_reverse] = get_topological_order(graph); // add sorting into topological order
     set_edges_in_topological_order(graph, to);
 
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return std::hash<long>{}(n->id_) % hash_range; }, hash_range*10);
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
 
     auto queue = sort_edge_tro_plus(graph, to, to_reverse);
 

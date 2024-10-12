@@ -2,6 +2,7 @@
 
 #include "BFL.h"
 #include "dagUtil.h"
+#include "MurmurHash3.h"
 
 #include <queue>
 #include <algorithm>
@@ -22,8 +23,8 @@ std::queue<Edge> sort_edge_tro(graph& graph, const std::vector<long>& to, const 
 template <size_t hash_range>
 bool is_redundant_tro(const labeled_graph<hash_range>& labeled_graph, const Edge& edge, const std::vector<long>& to) {
     const auto [u, v] = edge;
-    for (auto it = u->outgoing_edges_.rbegin(); it != u->outgoing_edges_.rend(); ++it) {
-        if (to[(*it)->id_] >= to[v->id_]) continue; // add index check
+    for (auto it = u->outgoing_edges_.begin(); it != u->outgoing_edges_.end(); ++it) {
+        if (to[(*it)->id_] >= to[v->id_]) break; // add index check
         if (query_reachability(labeled_graph, *(*it), *v)) {
             return true;
         }
@@ -36,7 +37,7 @@ template <size_t hash_range>
 void tr_o(graph& graph) {
     auto const [to, to_revere] = get_topological_order(graph); // add sorting into topological order
     set_edges_in_topological_order(graph, to);
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return n->id_ % hash_range; }, hash_range*10);
+    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
     auto queue = sort_edge_tro(graph, to, to_revere);
 
     while(!queue.empty()) {
