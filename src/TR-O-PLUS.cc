@@ -1,6 +1,5 @@
 #include "TR-O-PLUS.h"
 
-#include <queue>
 #include <unordered_set>
 
 #include "dagUtil.h"
@@ -81,8 +80,8 @@ bool is_redundant_tro_plus(labeled_graph<hash_range> const& labeled_graph, Edge 
 }
 
 // Algorithm 3 TR-O-Plus
-template <size_t hash_range>
 void tr_o_plus(graph& graph) {
+    auto const hash_range = 1024;
     auto const [to, to_reverse] = get_topological_order(graph);
     auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
 
@@ -94,6 +93,3 @@ void tr_o_plus(graph& graph) {
         }
     }
 }
-
-void tr_o_plus_dense(graph& graph) { tr_o_plus<1024>(graph); }
-void tr_o_plus_sparse(graph& graph) { tr_o_plus<64>(graph); }

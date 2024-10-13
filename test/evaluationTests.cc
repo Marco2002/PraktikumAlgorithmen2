@@ -11,14 +11,12 @@
 #include "MurmurHash3.h"
 
 std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&), std::string const& algorithm_name) {
-   //  reset();
     auto g = copy_graph(graph);
     auto const start = std::chrono::high_resolution_clock::now();
     algorithm(g);
     auto const stop = std::chrono::high_resolution_clock::now();
     auto const duration = duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << "calculated transient reduction " << algorithm_name <<". TIME: " << duration.count() << "microseconds\n";
-   //  log();
     return duration;
 }
 
@@ -168,50 +166,116 @@ graph read_graph(std::string const& graph_name, std::string const& filetype) {
     throw std::runtime_error("Unknown filetype.");
 }
 
-void execute_test_on_graph(std::string const& graph_name, std::string const& filetype) {
+void execute_test_on_graph(std::string const& graph_name, graph& g, int number_of_times) {
     std::ofstream resultsFile("../../test/results/" + graph_name + ".txt");
     if (!resultsFile.is_open()) {
         std::cerr << "Error opening file!" << std::endl;
     }
 
+    std::chrono::microseconds duration(0);
+    for(int i = 0; i < number_of_times; ++i) {
+        duration += evaluate(g, tr_b, "tr_b");
+    }
+    resultsFile << "TR-B: " << (duration.count() / number_of_times) << "\n";
+
+    duration = std::chrono::microseconds(0);
+    for(int i = 0; i < number_of_times; ++i) {
+        duration += evaluate(g, tr_o, "tr_o");
+    }
+    resultsFile << "TR-O: " << (duration.count() / number_of_times) << "\n";
+
+    duration = std::chrono::microseconds(0);
+    for(int i = 0; i < number_of_times; ++i) {
+        duration += evaluate(g, tr_o_plus, "tr_o_plus");
+    }
+    resultsFile << "TR-O+: " << (duration.count() / number_of_times) << "\n";
+
+    duration = std::chrono::microseconds(0);
+    for(int i = 0; i < number_of_times; ++i) {
+        duration += evaluate(g, build_tr_by_dfs, "dfs");
+    }
+    resultsFile << "DFS: " << (duration.count() / number_of_times) << "\n";
+}
+
+void execute_test_on_dataset(std::string const& graph_name, std::string const& filetype, int number_of_times) {
     auto g = read_graph(graph_name, filetype);
     shuffle_graph(g, 12102024);
-    auto duration = evaluate(g, tr_b_dense, "tr_b_dense");
-    resultsFile << "TR-B for dense graphs: " << duration.count() << "\n";
-    duration = evaluate(g, tr_o_dense, "tr_o_dense");
-    resultsFile << "TR-O for dense graphs: " << duration.count() << "\n";
-    duration = evaluate(g, tr_o_plus_dense, "tr_o_plus_dense");
-    resultsFile << "TR-O-PLUS for dense graphs: " << duration.count() << "\n";
-//    duration = evaluate(g, build_tr_by_dfs, "build_tr_by_dfs");
-//    resultsFile << "DFS for dense graphs: " << duration.count() << "\n";
+
+    execute_test_on_graph(graph_name, g, number_of_times);
 }
 
 TEST(evaluate, amaze) {
-    execute_test_on_graph("amaze", "gra");
+    execute_test_on_dataset("amaze", "gra", 10);
 }
 
 TEST(evaluate, go) {
-    execute_test_on_graph("go", "gra");
+    execute_test_on_dataset("go", "gra", 10);
 }
 
 TEST(evaluate, citPatents) {
-    execute_test_on_graph("cit-Patents", "txt");
+    execute_test_on_dataset("cit-Patents", "txt", 1);
 }
 
 TEST(evaluate, citeseerx) {
-    execute_test_on_graph("citeseerx", "gra");
+    execute_test_on_dataset("citeseerx", "gra", 1);
 }
 
-TEST(TRO_PLUS, time_tests) {
-    int number_of_nodes = 3700000;
-    int number_of_edges = 16500000;
+TEST(TRO_PLUS, small_sparse_synthetic) {
+    int number_of_nodes = 10000;
+    int number_of_edges = 20000;
 
     set_seed(12092024);
 
-    auto g = generate_graph(number_of_nodes, number_of_edges, true);
-    shuffle_graph(g, 12102024);
-    auto duration = evaluate(g, tr_b_dense, "tr_b_dense");
-    duration = evaluate(g, tr_o_dense, "tr_o_dense");
-    duration = evaluate(g, tr_o_plus_dense, "tr_o_plus_dense");
-    // tr_o_plus_dense(g);
+    auto g = generate_graph(number_of_nodes, number_of_edges, true, true);
+    execute_test_on_graph("small_sparse_synthetic", g, 10);
+}
+
+TEST(TRO_PLUS, small_dense_synthetic) {
+    int number_of_nodes = 10000;
+    int number_of_edges = 50000;
+
+    set_seed(12092024);
+
+    auto g = generate_graph(number_of_nodes, number_of_edges, true, true);
+    execute_test_on_graph("small_dense_synthetic", g, 10);
+}
+
+TEST(TRO_PLUS, medium_sparse_synthetic) {
+    int number_of_nodes = 100000;
+    int number_of_edges = 200000;
+
+    set_seed(12092024);
+
+    auto g = generate_graph(number_of_nodes, number_of_edges, true, true);
+    execute_test_on_graph("medium_sparse_synthetic", g, 10);
+}
+
+TEST(TRO_PLUS, medium_dense_synthetic) {
+    int number_of_nodes = 100000;
+    int number_of_edges = 500000;
+
+    set_seed(12092024);
+
+    auto g = generate_graph(number_of_nodes, number_of_edges, true, true);
+    execute_test_on_graph("medium_dense_synthetic", g, 10);
+}
+
+TEST(TRO_PLUS, large_sparse_synthetic) {
+    int number_of_nodes = 1000000;
+    int number_of_edges = 2000000;
+
+    set_seed(12092024);
+
+    auto g = generate_graph(number_of_nodes, number_of_edges, true, true);
+    execute_test_on_graph("large_sparse_synthetic", g, 1);
+}
+
+TEST(TRO_PLUS, large_dense_synthetic) {
+    int number_of_nodes = 1000000;
+    int number_of_edges = 5000000;
+
+    set_seed(12092024);
+
+    auto g = generate_graph(number_of_nodes, number_of_edges, true, true);
+    execute_test_on_graph("large_dense_synthetic", g, 1);
 }

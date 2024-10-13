@@ -1,6 +1,5 @@
 #include "TR-B.h"
 
-#include <queue>
 #include <algorithm>
 
 #include "BFL.h"
@@ -32,8 +31,8 @@ bool is_redundant(labeled_graph<hash_range> const& labeled_graph, Edge const& ed
 }
 
 // Algorithm 1 TR-B
-template <size_t hash_range>
 void tr_b(graph& graph) {
+    auto const hash_range = 1024;
     auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
 
     auto queue = sort_edge(graph);
@@ -44,6 +43,3 @@ void tr_b(graph& graph) {
         }
     }
 }
-
-void tr_b_dense(graph& graph) { tr_b<1024>(graph); }
-void tr_b_sparse(graph& graph) { tr_b<64>(graph); }

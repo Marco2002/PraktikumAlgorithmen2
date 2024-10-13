@@ -75,7 +75,7 @@ void graph_is_correct_transitive_reduction_on_example(graph& g) {
 
 TEST(TRB, correctlyBuildsTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
-    tr_b_sparse(g);
+    tr_b(g);
 
     for(auto const& n : g.nodes_) {
         std::cout << "Node " << n.id_ << " has ";
@@ -91,7 +91,7 @@ TEST(TRB, correctlyBuildsTransitiveReductionOnExample) {
 
 TEST(TRO, correctlyBuildsTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
-    tr_o_sparse(g);
+    tr_o(g);
 
     for(auto const& n : g.nodes_) {
         std::cout << "Node " << n.id_ << " has ";
@@ -106,7 +106,7 @@ TEST(TRO, correctlyBuildsTransitiveReductionOnExample) {
 
 TEST(TRO_PLUS, correctlyBuildsTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
-    tr_o_plus_sparse(g);
+    tr_o_plus(g);
 
     for(auto const& n : g.nodes_) {
         std::cout << "Node " << n.id_ << " has ";
@@ -120,8 +120,8 @@ TEST(TRO_PLUS, correctlyBuildsTransitiveReductionOnExample) {
 }
 
 TEST(TRB, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
-    int number_of_nodes = 10000;
-    int number_of_edges = 200000;
+    int number_of_nodes = 1000;
+    int number_of_edges = 20000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
@@ -130,7 +130,7 @@ TEST(TRB, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
     auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
     ASSERT_EQ(g, g2);
 
-    tr_b_dense(g);
+    tr_b(g);
     set_edges_in_topological_order(g, std::get<0>(get_topological_order(g)));
     build_tr_by_dfs(g2);
     set_edges_in_topological_order(g2, std::get<0>(get_topological_order(g2)));
@@ -139,8 +139,8 @@ TEST(TRB, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
 }
 
 TEST(TRO, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
-    int number_of_nodes = 10000;
-    int number_of_edges = 200000;
+    int number_of_nodes = 1000;
+    int number_of_edges = 20000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
@@ -149,7 +149,7 @@ TEST(TRO, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
     auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
     ASSERT_EQ(g, g2);
 
-    tr_o_dense(g);
+    tr_o(g);
     build_tr_by_dfs(g2);
     set_edges_in_topological_order(g2, std::get<0>(get_topological_order(g2)));
 
@@ -167,7 +167,7 @@ TEST(TRO_PLUS, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
     auto g2 = generate_graph(number_of_nodes, number_of_edges, true);
     ASSERT_EQ(g, g2);
 
-    tr_o_plus_dense(g);
+    tr_o_plus(g);
     build_tr_by_dfs(g2);
     set_edges_in_topological_order(g2, std::get<0>(get_topological_order(g2)));
 

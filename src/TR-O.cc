@@ -1,8 +1,6 @@
 #include "TR-O.h"
 
-#include <queue>
 #include <algorithm>
-#include <ranges>
 
 #include "BFL.h"
 #include "dagUtil.h"
@@ -35,8 +33,8 @@ bool is_redundant_tro(labeled_graph<hash_range> const& labeled_graph, Edge const
 }
 
 // Algorithm 2 TR-O
-template <size_t hash_range>
 void tr_o(graph& graph) {
+    auto const hash_range = 1024;
     auto const [to, to_revere] = get_topological_order(graph);
     auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
     auto queue = sort_edge_tro(graph, to);
@@ -47,6 +45,3 @@ void tr_o(graph& graph) {
         }
     }
 }
-
-void tr_o_dense(graph& graph) { tr_o<1024>(graph); }
-void tr_o_sparse(graph& graph) { tr_o<64>(graph); }

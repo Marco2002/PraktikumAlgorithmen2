@@ -1,3 +1,4 @@
-TR-B for dense graphs: 2071
-TR-O for dense graphs: 2262
-TR-O-PLUS for dense graphs: 2552
+TR-B: 8344
+TR-O: 5353
+TR-O+: 3299
+DFS: 20502
