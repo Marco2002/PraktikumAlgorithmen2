@@ -58,17 +58,18 @@ std::vector<Edge> sort_edge_tro_plus(graph& graph) {
 template <size_t hash_range>
 bool is_redundant_tro_plus(labeled_graph<hash_range> const& labeled_graph, Edge const& edge, std::vector<long> const& to) {
     auto const [u, v] = edge;
+    auto const u_index = to[u->id_];
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
-        for (auto it = v->incoming_edges_.begin(); it != v->incoming_edges_.end(); ++it) { // loop in descending order through incoming_edges
-            if (to[(*it)->id_] <= to[u->id_]) break; // add index check
-            if (query_reachability(labeled_graph, *u, *(*it))) {
+        for (auto w : v->incoming_edges_) { // loop in descending order through incoming_edges
+            if (to[w->id_] <= u_index) break; // add index check
+            if (query_reachability(labeled_graph, *u, *w)) {
                 return true;
             }
         }
     } else {
-        for (auto it = u->outgoing_edges_.begin(); it != u->outgoing_edges_.end(); ++it) { // loop in ascending order through outgoing_edges
-            if (to[(*it)->id_] >= to[v->id_]) break; // add index check
-            if (query_reachability(labeled_graph, *(*it), *v)) {
+        for (auto w : u->outgoing_edges_) { // loop in ascending order through outgoing_edges
+            if (to[w->id_] >= u_index) break; // add index check
+            if (query_reachability(labeled_graph, *w, *v)) {
                 return true;
             }
         }
@@ -93,5 +94,5 @@ void tr_o_plus(graph& graph) {
     }
 }
 
-void tr_o_plus_dense(graph& graph) { tr_o_plus<512>(graph); }
+void tr_o_plus_dense(graph& graph) { tr_o_plus<160>(graph); }
 void tr_o_plus_sparse(graph& graph) { tr_o_plus<64>(graph); }

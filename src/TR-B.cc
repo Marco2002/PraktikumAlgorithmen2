@@ -47,5 +47,5 @@ void tr_b(graph& graph) {
     }
 }
 
-void tr_b_dense(graph& graph) { tr_b<512>(graph); }
+void tr_b_dense(graph& graph) { tr_b<160>(graph); }
 void tr_b_sparse(graph& graph) { tr_b<64>(graph); }

@@ -1,3 +1,3 @@
-TR-B for dense graphs: 276269
-TR-O for dense graphs: 144296
-TR-O-PLUS for dense graphs: 25101
+TR-B for dense graphs: 2071
+TR-O for dense graphs: 2262
+TR-O-PLUS for dense graphs: 2552

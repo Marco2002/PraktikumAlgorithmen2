@@ -23,9 +23,9 @@ std::queue<Edge> sort_edge_tro(graph& graph, std::vector<long> const& to, std::v
 template <size_t hash_range>
 bool is_redundant_tro(labeled_graph<hash_range> const& labeled_graph, Edge const& edge, std::vector<long> const& to) {
     auto const [u, v] = edge;
-    for (auto it = u->outgoing_edges_.begin(); it != u->outgoing_edges_.end(); ++it) {
-        if (to[(*it)->id_] >= to[v->id_]) break; // add index check
-        if (query_reachability(labeled_graph, *(*it), *v)) {
+    for (auto w : u->outgoing_edges_) {
+        if (to[w->id_] >= to[v->id_]) break; // add index check
+        if (query_reachability(labeled_graph, *w, *v)) {
             return true;
         }
     }
@@ -50,5 +50,5 @@ void tr_o(graph& graph) {
     }
 }
 
-void tr_o_dense(graph& graph) { tr_o<512>(graph); }
+void tr_o_dense(graph& graph) { tr_o<160>(graph); }
 void tr_o_sparse(graph& graph) { tr_o<64>(graph); }

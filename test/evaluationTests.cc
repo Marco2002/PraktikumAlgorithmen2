@@ -193,8 +193,6 @@ void execute_test_on_graph(std::string const& graph_name, std::string const& fil
     resultsFile << "TR-O for dense graphs: " << duration.count() << "\n";
     duration = evaluate(g, tr_o_plus_dense, "tr_o_plus_dense");
     resultsFile << "TR-O-PLUS for dense graphs: " << duration.count() << "\n";
-//    g = read_graph(graph_name, filetype);
-//    shuffle_graph(g);
 //    duration = evaluate(g, build_tr_by_dfs, "build_tr_by_dfs");
 //    resultsFile << "DFS for dense graphs: " << duration.count() << "\n";
 }
