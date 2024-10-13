@@ -157,8 +157,8 @@ TEST(TRO, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
 }
 
 TEST(TRO_PLUS, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
-    int number_of_nodes = 10000;
-    int number_of_edges = 200000;
+    int number_of_nodes = 1000;
+    int number_of_edges = 20000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);

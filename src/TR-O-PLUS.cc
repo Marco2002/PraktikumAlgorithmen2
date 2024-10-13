@@ -14,7 +14,9 @@ struct up_down_node {
     up_down_node(node* node, bool const is_up, size_t const degree) : node_(node), is_up_(is_up), degree(degree) {}
 };
 
-std::vector<Edge> sort_edge_tro_plus(graph& graph) {
+std::vector<Edge> sort_edge_tro_plus(graph& graph, std::vector<long> const& to) {
+    set_edges_in_topological_order(graph, to); // add sorting into topological order
+
     std::vector<Edge> queue;
     queue.reserve(graph.number_of_edges_);
 
@@ -59,16 +61,17 @@ template <size_t hash_range>
 bool is_redundant_tro_plus(labeled_graph<hash_range> const& labeled_graph, Edge const& edge, std::vector<long> const& to) {
     auto const [u, v] = edge;
     auto const u_index = to[u->id_];
+    auto const v_index = to[v->id_];
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
-        for (auto w : v->incoming_edges_) { // loop in descending order through incoming_edges
+        for (auto const w : v->incoming_edges_) { // loop in descending order through incoming_edges
             if (to[w->id_] <= u_index) break; // add index check
             if (query_reachability(labeled_graph, *u, *w)) {
                 return true;
             }
         }
     } else {
-        for (auto w : u->outgoing_edges_) { // loop in ascending order through outgoing_edges
-            if (to[w->id_] >= u_index) break; // add index check
+        for (auto const w : u->outgoing_edges_) { // loop in ascending order through outgoing_edges
+            if (to[w->id_] >= v_index) break; // add index check
             if (query_reachability(labeled_graph, *w, *v)) {
                 return true;
             }
@@ -81,11 +84,9 @@ bool is_redundant_tro_plus(labeled_graph<hash_range> const& labeled_graph, Edge 
 template <size_t hash_range>
 void tr_o_plus(graph& graph) {
     auto const [to, to_reverse] = get_topological_order(graph);
-    set_edges_in_topological_order(graph, to); // add sorting into topological order
-
     auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
 
-    auto queue = sort_edge_tro_plus(graph);
+    auto queue = sort_edge_tro_plus(graph, to);
 
     for(auto edge : queue) {
         if(is_redundant_tro_plus(labeled_graph, edge, to)) {
@@ -94,5 +95,5 @@ void tr_o_plus(graph& graph) {
     }
 }
 
-void tr_o_plus_dense(graph& graph) { tr_o_plus<160>(graph); }
+void tr_o_plus_dense(graph& graph) { tr_o_plus<1024>(graph); }
 void tr_o_plus_sparse(graph& graph) { tr_o_plus<64>(graph); }

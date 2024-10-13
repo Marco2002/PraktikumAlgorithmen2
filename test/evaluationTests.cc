@@ -174,17 +174,6 @@ void execute_test_on_graph(std::string const& graph_name, std::string const& fil
         std::cerr << "Error opening file!" << std::endl;
     }
 
-//    auto g = read_graph(graph_name, filetype);
-//    auto duration = evaluate(g, tr_b_sparse, "tr_b_sparse");
-//    resultsFile << "TR-B for sparse graphs: " << duration.count() << "\n";
-//    g = read_graph(graph_name, filetype);
-//    duration = evaluate(g, tr_o_sparse, "tr_o_sparse");
-//    resultsFile << "TR-O for sparse graphs: " << duration.count() << "\n";
-//    g = read_graph(graph_name, filetype);
-//    duration = evaluate(g, tr_o_plus_sparse, "tr_o_plus_sparse");
-//    resultsFile << "TR-O-PLUS for sparse graphs: " << duration.count() << "\n";
-
-
     auto g = read_graph(graph_name, filetype);
     shuffle_graph(g, 12102024);
     auto duration = evaluate(g, tr_b_dense, "tr_b_dense");

@@ -6,12 +6,12 @@
 #include "BFL.h"
 #include "MurmurHash3.h"
 
-std::queue<Edge> sort_edge(graph& graph) {
-    std::queue<Edge> queue;
+std::vector<Edge> sort_edge(graph& graph) {
+    std::vector<Edge> queue;
 
     for (auto& node : graph.nodes_) {
         for (auto const adjacent_node : node.outgoing_edges_) {
-            queue.emplace(&node, adjacent_node);
+            queue.emplace_back(&node, adjacent_node);
         }
     }
 
@@ -35,17 +35,15 @@ bool is_redundant(labeled_graph<hash_range> const& labeled_graph, Edge const& ed
 template <size_t hash_range>
 void tr_b(graph& graph) {
     auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
-    auto queue = sort_edge(labeled_graph.graph_);
 
-    while(!queue.empty()) {
-        auto const edge = queue.front();
-        queue.pop();
+    auto queue = sort_edge(graph);
 
+    for(auto edge : queue) {
         if(is_redundant(labeled_graph, edge)) {
             graph.remove_edge(*std::get<0>(edge), *std::get<1>(edge));
         }
     }
 }
 
-void tr_b_dense(graph& graph) { tr_b<160>(graph); }
+void tr_b_dense(graph& graph) { tr_b<1024>(graph); }
 void tr_b_sparse(graph& graph) { tr_b<64>(graph); }
