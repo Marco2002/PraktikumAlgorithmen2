@@ -41,7 +41,7 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph, std::vector<long> const& to, s
                 }
             }
         } else {
-            for (auto outgoing_node : up_down_node.node_->outgoing_edges_) { // loop in descending order through incoming_edges
+            for (auto outgoing_node : up_down_node.node_->outgoing_edges_) { // loop in ascending order through outgoing_edges
                 auto edge = std::make_tuple(up_down_node.node_, outgoing_node);
                 if(!handled_edges.contains(edge)) {
                     queue.emplace(up_down_node.node_, outgoing_node);
@@ -58,14 +58,14 @@ template <size_t hash_range>
 bool is_redundant_tro_plus(labeled_graph<hash_range> const& labeled_graph, Edge const& edge, std::vector<long> const& to) {
     auto const [u, v] = edge;
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
-        for (auto it = v->incoming_edges_.begin(); it != v->incoming_edges_.end(); ++it) {
+        for (auto it = v->incoming_edges_.begin(); it != v->incoming_edges_.end(); ++it) { // loop in descending order through incoming_edges
             if (to[(*it)->id_] <= to[u->id_]) break; // add index check
             if (query_reachability(labeled_graph, *u, *(*it))) {
                 return true;
             }
         }
     } else {
-        for (auto it = u->outgoing_edges_.begin(); it != u->outgoing_edges_.end(); ++it) {
+        for (auto it = u->outgoing_edges_.begin(); it != u->outgoing_edges_.end(); ++it) { // loop in ascending order through outgoing_edges
             if (to[(*it)->id_] >= to[v->id_]) break; // add index check
             if (query_reachability(labeled_graph, *(*it), *v)) {
                 return true;
@@ -78,8 +78,8 @@ bool is_redundant_tro_plus(labeled_graph<hash_range> const& labeled_graph, Edge 
 // Algorithm 3 TR-O-Plus
 template <size_t hash_range>
 void tr_o_plus(graph& graph) {
-    auto const [to, to_reverse] = get_topological_order(graph); // add sorting into topological order
-    set_edges_in_topological_order(graph, to);
+    auto const [to, to_reverse] = get_topological_order(graph);
+    set_edges_in_topological_order(graph, to); // add sorting into topological order
 
     auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
 

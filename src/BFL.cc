@@ -15,9 +15,10 @@ std::tuple<std::vector<node const*>, LabelDiscovery, LabelFinish> depth_first_se
     LabelDiscovery label_discovery(g.nodes_.size());
     LabelFinish label_finish(g.nodes_.size());
     std::vector<node const*> post_order(g.nodes_.size());
-    long current = 0;
+    long current = 0; // keeps track of the current step for the label_discovery and label_finish
     long order_index = 0;
 
+    // start DFS on all nodes without incoming edges
     for(auto const& n : g.nodes_) {
         if(n.incoming_edges_.empty()) {
             depth_first_search_visit(n, label_discovery, label_finish, post_order, current, order_index);

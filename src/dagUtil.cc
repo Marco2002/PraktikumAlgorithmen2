@@ -73,6 +73,7 @@ std::unordered_set<node const*> find_all_reachable_nodes(node const& u, bool con
 
     to_visit.push(&u);
 
+    // find all reachable nodes via DFS
     while (!to_visit.empty()) {
         auto const* current = to_visit.top();
         to_visit.pop();
@@ -99,11 +100,13 @@ void build_tr_by_dfs(graph& g) {
         std::unordered_set<node const*> reachable_nodes;
         std::vector<node*> nodes_to_remove;
         for(auto const m : n.outgoing_edges_) {
+            // find all reachable nodes from m (not including m)
             auto reachable_from_m = find_all_reachable_nodes(*m, false);
             reachable_nodes.insert(reachable_from_m.begin(), reachable_from_m.end());
         }
 
         for(auto const m : n.outgoing_edges_) {
+            // check if m is reachable from another successor node of n and if marks it for removal
             if(reachable_nodes.contains(m)) {
                 nodes_to_remove.push_back(m);
             }
@@ -115,6 +118,7 @@ void build_tr_by_dfs(graph& g) {
     }
 }
 
+// creates a full copy of graph g
 graph copy_graph(graph& g) {
     graph new_graph;
     new_graph.nodes_.resize(g.nodes_.size());
@@ -133,6 +137,8 @@ graph copy_graph(graph& g) {
     return std::move(new_graph);
 }
 
+// shuffles the nodes of a graph and each nodes' incoming and outgoing edges, while maintaining the structure of the graph
+// this is only used in some test cases to ensure that the nodes and edges aren't in any topological order
 void shuffle_graph(graph& g, long const seed) {
     // Create a vector of pointers to nodes for shuffling
     std::vector<node *> node_ptrs(g.nodes_.size());
