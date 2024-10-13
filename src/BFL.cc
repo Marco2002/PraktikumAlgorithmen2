@@ -2,7 +2,7 @@
 
 #include <stack>
 
-void depth_first_search_visit(const node& n, LabelDiscovery& label_discover, LabelFinish& label_finish, std::vector<const node*>& post_order, long& current, long& order_index) {
+void depth_first_search_visit(node const& n, LabelDiscovery& label_discover, LabelFinish& label_finish, std::vector<node const*>& post_order, long& current, long& order_index) {
     label_discover[n.id_] = ++current;
     for (auto const e : n.outgoing_edges_) {
         if (label_discover[e->id_] != 0) continue; // if e was visited
@@ -13,14 +13,14 @@ void depth_first_search_visit(const node& n, LabelDiscovery& label_discover, Lab
     label_finish[n.id_] = ++current;
 }
 
-std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_search(const graph& g) {
+std::tuple<std::vector<node const*>, LabelDiscovery, LabelFinish> depth_first_search(graph const& g) {
     LabelDiscovery label_discovery(g.nodes_.size());
     LabelFinish label_finish(g.nodes_.size());
-    std::vector<const node*> post_order(g.nodes_.size());
+    std::vector<node const*> post_order(g.nodes_.size());
     long current = 0;
     long order_index = 0;
 
-    for(const auto& n : g.nodes_) {
+    for(auto const& n : g.nodes_) {
         if(n.incoming_edges_.empty()) {
             depth_first_search_visit(n, label_discovery, label_finish, post_order, current, order_index);
         }
@@ -33,7 +33,7 @@ std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_se
     return std::make_tuple(post_order, label_discovery, label_finish);
 }
 
-std::vector<const node*> merge_vertices(const std::vector<const node*>& post_order, const long d) {
+std::vector<node const*> merge_vertices(std::vector<node const*> const& post_order, long const d) {
     auto const num_of_intervals = std::min(d, static_cast<long>(post_order.size()));
     std::vector<const node*> g(post_order.size());
 

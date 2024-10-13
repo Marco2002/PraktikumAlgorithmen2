@@ -25,7 +25,7 @@ struct hash_tuple {
     }
 };
 
-void set_seed(const int seed) {
+void set_seed(int const seed) {
     rng.seed(seed);
 }
 
@@ -44,7 +44,7 @@ void set_seed(const int seed) {
  *
  * @return the generated graph
  */
-graph generate_graph(const long number_of_nodes, const long long number_of_edges, const bool should_be_dag, const bool should_be_shuffled) {
+graph generate_graph(long const number_of_nodes, long long const number_of_edges, bool const should_be_dag, bool const should_be_shuffled) {
     if(number_of_nodes < 2) {
         throw std::invalid_argument( "the number of nodes needs to be at least 2" );
     }
@@ -55,7 +55,7 @@ graph generate_graph(const long number_of_nodes, const long long number_of_edges
             !should_be_dag && number_of_edges > static_cast<long long>(number_of_nodes) * (static_cast<long long>(number_of_nodes)-1)) {
         throw std::invalid_argument( "too many edges" );
     }
-    const std::vector<node> nodes(number_of_nodes);
+    std::vector<node> const nodes(number_of_nodes);
     std::vector<Edge> edges(number_of_edges);
     std::uniform_int_distribution<long> node_distribution(0,number_of_nodes-1);
 
@@ -102,15 +102,15 @@ graph generate_graph(const long number_of_nodes, const long long number_of_edges
     return dag;
 }
 
-std::vector<ConstEdge> generate_queries(graph const& dag, long long number_of_edges, const std::vector<long>& to_reverse) {
+std::vector<ConstEdge> generate_queries(graph const& dag, long long number_of_edges, std::vector<long> const& to_reverse) {
     std::uniform_int_distribution<long> node_distribution(0,dag.nodes_.size()-1);
     std::unordered_set<std::tuple<long, long>, hash_tuple>  existing_queries = {};
-    std::vector<std::tuple<const node*, const node*>> generated_queries = {};
+    std::vector<std::tuple<node const*, node const*>> generated_queries = {};
 
     for(long long i = 0; i < number_of_edges; ++i) {
         // generate two random indexes
         long a, b;
-        const node *from, *to;
+        node const *from, *to;
 
         do {
             a = node_distribution(rng);

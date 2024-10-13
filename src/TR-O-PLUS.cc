@@ -11,10 +11,10 @@ struct up_down_node {
     bool is_up_;
     size_t degree;
 
-    up_down_node(node* node, const bool is_up, const size_t degree) : node_(node), is_up_(is_up), degree(degree) {}
+    up_down_node(node* node, bool const is_up, size_t const degree) : node_(node), is_up_(is_up), degree(degree) {}
 };
 
-std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, const std::vector<long>& to_reverse) {
+std::queue<Edge> sort_edge_tro_plus(graph& graph, std::vector<long> const& to, std::vector<long> const& to_reverse) {
     std::queue<Edge> queue;
 
     std::vector<up_down_node> up_and_down_nodes;
@@ -25,7 +25,7 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, c
         up_and_down_nodes.emplace_back(&node, false, node.outgoing_edges_.size());
     }
     // sort up and down nodes by their degree in ascending order
-    std::sort(up_and_down_nodes.begin(), up_and_down_nodes.end(), [](const up_down_node& a, const up_down_node& b) {
+    std::sort(up_and_down_nodes.begin(), up_and_down_nodes.end(), [](up_down_node const& a, up_down_node const& b) {
         return a.degree < b.degree;
     });
 
@@ -55,8 +55,8 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph, const std::vector<long>& to, c
 }
 
 template <size_t hash_range>
-bool is_redundant_tro_plus(const labeled_graph<hash_range>& labeled_graph, const Edge& edge, const std::vector<long>& to) {
-    const auto [u, v] = edge;
+bool is_redundant_tro_plus(labeled_graph<hash_range> const& labeled_graph, Edge const& edge, std::vector<long> const& to) {
+    auto const [u, v] = edge;
     if(u->outgoing_edges_.size() > v->incoming_edges_.size()) {
         for (auto it = v->incoming_edges_.begin(); it != v->incoming_edges_.end(); ++it) {
             if (to[(*it)->id_] <= to[u->id_]) break; // add index check
@@ -81,12 +81,12 @@ void tr_o_plus(graph& graph) {
     auto const [to, to_reverse] = get_topological_order(graph); // add sorting into topological order
     set_edges_in_topological_order(graph, to);
 
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
+    auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
 
     auto queue = sort_edge_tro_plus(graph, to, to_reverse);
 
     while(!queue.empty()) {
-        auto edge = queue.front();
+        auto const edge = queue.front();
         queue.pop();
 
         if(is_redundant_tro_plus(labeled_graph, edge, to)) {

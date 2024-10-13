@@ -35,7 +35,7 @@ labeled_graph<3> generate_example_graph(graph& g) {
     g.add_edge(9, 5);
     g.add_edge(10, 11);
 
-    auto h = [](const node* n) {
+    auto h = [](node const* n) {
       switch(n->id_) {
         case 1:
         case 2:
@@ -61,7 +61,7 @@ labeled_graph<3> generate_example_graph(graph& g) {
 }
 
 TEST(BFL, labelsAreCorrectlyBuilt) {
-    graph g = graph();
+    auto g = graph();
     auto g_labeled = generate_example_graph(g);
 
     // check that discovery labels are correct
@@ -120,15 +120,15 @@ TEST(BFL, labelsAreCorrectlyBuilt) {
     ASSERT_EQ(g_labeled.label_out_[11], std::bitset<3>("100"));
 }
 
-void assert_query(labeled_graph<3>& g, const int id_from, const int id_to, const bool expected_result, const std::string& expected_output) {
-    std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+void assert_query(labeled_graph<3>& g, int const id_from, int const id_to, bool const expected_result, std::string const& expected_output) {
+    auto const oldCout = std::cout.rdbuf(buffer.rdbuf());
     ASSERT_EQ(query_reachability(g, g.graph_.nodes_[id_from], g.graph_.nodes_[id_to]), expected_result);
     std::cout.rdbuf(oldCout);
-    auto output = buffer.str();
-    size_t last_newline_pos = output.rfind('\n', output.size() - 2);
+    auto const output = buffer.str();
+    size_t const last_newline_pos = output.rfind('\n', output.size() - 2);
 
     // If a newline is found, return the substring from the position after the newline to the end
-    auto last_line = last_newline_pos != std::string::npos ? output.substr(last_newline_pos + 1) : output;
+    auto const last_line = last_newline_pos != std::string::npos ? output.substr(last_newline_pos + 1) : output;
 
     EXPECT_EQ(last_line, expected_output);
 }
@@ -161,22 +161,22 @@ TEST(BFL, reachabilityQueringIsCorrect) {
     //ASSERT_TRUE(query_reachability(g, *g.graph_.nodes_[0], *g.graph_.nodes_[5]));
 }
 
-bool query_reachability_DFS(const node& u, const node& v) {
-    std::unordered_set<const node*> visited;
-    std::stack<const node*> to_visit;
+bool query_reachability_DFS(node const& u, node const& v) {
+    std::unordered_set<node const*> visited;
+    std::stack<node const*> to_visit;
 
     to_visit.push(&u);
 
     while (!to_visit.empty()) {
-        const node* current = to_visit.top();
+        auto current = to_visit.top();
         to_visit.pop();
 
         if (current == &v) return true;
-        if (visited.find(current) != visited.end()) continue;
+        if (visited.contains(current)) continue;
 
         visited.insert(current);
-        for (const node* neighbor : current->outgoing_edges_) {
-            if (visited.find(neighbor) == visited.end()) {
+        for (node const* neighbor : current->outgoing_edges_) {
+            if (!visited.contains(neighbor)) {
                 to_visit.push(neighbor);
             }
         }
@@ -185,12 +185,12 @@ bool query_reachability_DFS(const node& u, const node& v) {
 }
 
 TEST(BFL, queringWorksOnLargeGeneratedGraphs) {
-    constexpr int num_of_nodes = 5000;
-    constexpr int num_of_edges = 20000;
-    constexpr int num_of_queries = 1000;
+    int constexpr num_of_nodes = 5000;
+    int constexpr num_of_edges = 20000;
+    int constexpr num_of_queries = 1000;
 
-    constexpr int hash_range = 160;
-    constexpr int d = 1600;
+    int constexpr hash_range = 160;
+    int constexpr d = 1600;
 
     // seed graph generator randomly
     set_seed(std::chrono::system_clock::now().time_since_epoch().count());
@@ -199,8 +199,8 @@ TEST(BFL, queringWorksOnLargeGeneratedGraphs) {
 
     auto queries = generate_queries(dag, num_of_queries, to_reverse);
 
-    auto h = [](const node* n) { return n->id_ % hash_range; };
-    const auto labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
+    auto h = [](node const* n) { return n->id_ % hash_range; };
+    auto const labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
 
     for(auto [from, to] : queries) {
         ASSERT_EQ(query_reachability(labeled_graph, *from, *to), query_reachability_DFS(*from, *to));
@@ -208,18 +208,18 @@ TEST(BFL, queringWorksOnLargeGeneratedGraphs) {
 }
 
 TEST(BFL, queringIsCorrectOnLargeGeneratedGraphs) {
-    constexpr int num_of_nodes = 5000;
-    constexpr int num_of_edges = 20000;
-    constexpr int num_of_test_nodes = 20;
+    int constexpr num_of_nodes = 5000;
+    int constexpr num_of_edges = 20000;
+    int constexpr num_of_test_nodes = 20;
 
-    constexpr int hash_range = 160;
-    constexpr int d = 1600;
+    int constexpr hash_range = 160;
+    int constexpr d = 1600;
 
     // seed graph generator randomly
     set_seed(9092024);
     auto dag = generate_graph(num_of_nodes, num_of_edges, true);
-    auto h = [](const node* n) { return n->id_ % hash_range; };
-    const auto labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
+    auto h = [](node const* n) { return n->id_ % hash_range; };
+    auto const labeled_graph = build_labeled_graph<hash_range>(dag, h, d);
 
     // Create a random number generator
     std::random_device rd; // Seed for the random number engine

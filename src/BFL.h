@@ -32,12 +32,12 @@ struct labeled_graph {
         : graph_(graph), label_discovery_(std::move(label_discovery)), label_finish_(std::move(label_finish)), label_in_(label_in), label_out_(label_out) {}
 };
 
-std::tuple<std::vector<const node*>, LabelDiscovery, LabelFinish> depth_first_search(const graph& g);
+std::tuple<std::vector<node const*>, LabelDiscovery, LabelFinish> depth_first_search(graph const& g);
 
-std::vector<const node*> merge_vertices(const std::vector<const node*>& post_order, long d);
+std::vector<node const*> merge_vertices(std::vector<node const*> const& post_order, long d);
 
 template <size_t hash_range>
-void compute_label_out(const graph& graph, const std::vector<const node*>& g, const std::function<long(const node*)>& h, const node& n, std::vector<std::bitset<hash_range>>& label_out) {
+void compute_label_out(graph const& graph, std::vector<node const*> const& g, std::function<long(node const*)> const& h, node const& n, std::vector<std::bitset<hash_range>>& label_out) {
     label_out[n.id_].set(h(g[n.id_]));
     for(auto const successor : n.outgoing_edges_) {
         if(label_out[successor->id_].none()) { // if successor has not been visited
@@ -48,7 +48,7 @@ void compute_label_out(const graph& graph, const std::vector<const node*>& g, co
 }
 
 template <size_t hash_range>
-void compute_label_in(const graph& graph, const std::vector<const node*>& g, const std::function<long(const node*)>& h, const node& n, LabelIn<hash_range>& label_in) {
+void compute_label_in(graph const& graph, std::vector<node const*> const& g, std::function<long(node const*)> const& h, node const& n, LabelIn<hash_range>& label_in) {
     label_in[n.id_].set(h(g[n.id_]));
     for(auto const predecessor : n.incoming_edges_) {
         if(label_in[predecessor->id_].none()) { // if successor has not been visited
@@ -60,7 +60,7 @@ void compute_label_in(const graph& graph, const std::vector<const node*>& g, con
 
 // the hash should map to values in a range from 0...hash_range-1
 template <size_t hash_range> // the range is the number of values that can be possible outputs of the hash function
-labeled_graph<hash_range> build_labeled_graph(graph& graph, const std::function<long(const node*)>& h, const long d) {
+labeled_graph<hash_range> build_labeled_graph(graph& graph, std::function<long(node const*)> const& h, long const d) {
     LabelIn<hash_range> label_in(graph.nodes_.size());
     LabelOut<hash_range> label_out(graph.nodes_.size());
 
@@ -80,6 +80,7 @@ labeled_graph<hash_range> build_labeled_graph(graph& graph, const std::function<
     return labeled_graph<hash_range>(graph, label_discovery, label_finish, label_in, label_out);
 }
 
+// TODO: remove this
 class ReachabilityLogger {
 public:
     static ReachabilityLogger& getInstance() {
@@ -99,7 +100,7 @@ public:
         ++started_dfs_count_;
     }
 
-    void log() {
+    void log() const {
         std::cout << "query_reachability (without DFS) called: "
                   << query_reachability_no_dfs_count_ << " times" << std::endl;
         std::cout << "query_reachability (with DFS) called: "
@@ -147,7 +148,7 @@ bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, c
 }
 
 template <size_t hash_range>
-bool query_reachability(const labeled_graph<hash_range>& graph, const node& u, const node& v, std::unordered_set<long>& visited) {
+bool query_reachability(labeled_graph<hash_range> const& graph, node const& u, node const& v, std::unordered_set<long>& visited) {
     // ReachabilityLogger::getInstance().increment_with_dfs();
     visited.insert(u.id_);
 

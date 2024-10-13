@@ -10,7 +10,7 @@ std::queue<Edge> sort_edge(graph& graph) {
     std::queue<Edge> queue;
 
     for (auto& node : graph.nodes_) {
-        for (const auto adjacent_node : node.outgoing_edges_) {
+        for (auto const adjacent_node : node.outgoing_edges_) {
             queue.emplace(&node, adjacent_node);
         }
     }
@@ -19,8 +19,8 @@ std::queue<Edge> sort_edge(graph& graph) {
 }
 
 template <size_t hash_range>
-bool is_redundant(const labeled_graph<hash_range>& labeled_graph, const Edge& edge) {
-    const auto [u, v] = edge;
+bool is_redundant(labeled_graph<hash_range> const& labeled_graph, Edge const& edge) {
+    auto const [u, v] = edge;
     // check weather any of the outgoing edges from u can reach v
     for(auto const& w : u->outgoing_edges_) {
         if(w == v) continue;
@@ -34,11 +34,11 @@ bool is_redundant(const labeled_graph<hash_range>& labeled_graph, const Edge& ed
 // Algorithm 1 TR-B
 template <size_t hash_range>
 void tr_b(graph& graph) {
-    auto labeled_graph = build_labeled_graph<hash_range>(graph, [](const node* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
+    auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
     auto queue = sort_edge(labeled_graph.graph_);
 
     while(!queue.empty()) {
-        auto edge = queue.front();
+        auto const edge = queue.front();
         queue.pop();
 
         if(is_redundant(labeled_graph, edge)) {

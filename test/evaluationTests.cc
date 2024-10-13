@@ -10,7 +10,7 @@
 #include "dagGenerator.h"
 #include "MurmurHash3.h"
 
-std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&), const std::string& algorithm_name) {
+std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph&), std::string const& algorithm_name) {
    //  reset();
     auto g = copy_graph(graph);
     auto const start = std::chrono::high_resolution_clock::now();
@@ -22,7 +22,7 @@ std::chrono::microseconds evaluate(graph& graph, void (*algorithm)(graphs::graph
     return duration;
 }
 
-graph read_gra_file(const std::string& filename) {
+graph read_gra_file(std::string const& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open the .gra file.");
 
@@ -77,7 +77,7 @@ graph read_gra_file(const std::string& filename) {
     return g;
 }
 
-graph read_txt_graph(const std::string& filename) {
+graph read_txt_graph(std::string const& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) throw std::runtime_error("Unable to open the .txt file.");
 
@@ -158,7 +158,7 @@ graph read_txt_graph(const std::string& filename) {
     return g;
 }
 
-graph read_graph(const std::string& graph_name, const std::string& filetype) {
+graph read_graph(std::string const& graph_name, std::string const& filetype) {
     if(filetype == "gra") {
         return read_gra_file("../../test/data/" + graph_name + ".gra");
     }
@@ -168,7 +168,7 @@ graph read_graph(const std::string& graph_name, const std::string& filetype) {
     throw std::runtime_error("Unknown filetype.");
 }
 
-void execute_test_on_graph(const std::string& graph_name, const std::string& filetype) {
+void execute_test_on_graph(std::string const& graph_name, std::string const& filetype) {
     std::ofstream resultsFile("../../test/results/" + graph_name + ".txt");
     if (!resultsFile.is_open()) {
         std::cerr << "Error opening file!" << std::endl;

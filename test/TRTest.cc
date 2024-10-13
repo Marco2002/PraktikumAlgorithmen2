@@ -74,13 +74,13 @@ void graph_is_correct_transitive_reduction_on_example(graph& g) {
     ASSERT_TRUE(has_edge(g, 13, 14));
 }
 
-TEST(TRB, correctlyBuildTransitiveReductionOnExample) {
+TEST(TRB, correctlyBuildsTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
     tr_b_sparse(g);
 
-    for(const auto& n : g.nodes_) {
+    for(auto const& n : g.nodes_) {
         std::cout << "Node " << n.id_ << " has ";
-        for(const auto e : n.outgoing_edges_) {
+        for(auto const e : n.outgoing_edges_) {
             std::cout << e->id_ << ", ";
         }
         std::cout << "outgoing edges" << std::endl;
@@ -90,13 +90,13 @@ TEST(TRB, correctlyBuildTransitiveReductionOnExample) {
 }
 
 
-TEST(TRO, correctlyBuildTransitiveReductionOnExample) {
+TEST(TRO, correctlyBuildsTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
     tr_o_sparse(g);
 
-    for(const auto& n : g.nodes_) {
+    for(auto const& n : g.nodes_) {
         std::cout << "Node " << n.id_ << " has ";
-        for(const auto e : n.outgoing_edges_) {
+        for(auto const e : n.outgoing_edges_) {
             std::cout << e->id_ << ", ";
         }
         std::cout << "outgoing edges" << std::endl;
@@ -105,13 +105,13 @@ TEST(TRO, correctlyBuildTransitiveReductionOnExample) {
     graph_is_correct_transitive_reduction_on_example(g);
 }
 
-TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
+TEST(TRO_PLUS, correctlyBuildsTransitiveReductionOnExample) {
     auto g = generate_example_graph_tr_test();
     tr_o_plus_sparse(g);
 
-    for(const auto& n : g.nodes_) {
+    for(auto const& n : g.nodes_) {
         std::cout << "Node " << n.id_ << " has ";
-        for(const auto e : n.outgoing_edges_) {
+        for(auto const e : n.outgoing_edges_) {
             std::cout << e->id_ << ", ";
         }
         std::cout << "outgoing edges" << std::endl;
@@ -120,9 +120,9 @@ TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnExample) {
     graph_is_correct_transitive_reduction_on_example(g);
 }
 
-TEST(TRB, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
-    int number_of_nodes = 1000;
-    int number_of_edges = 20000;
+TEST(TRB, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
+    int number_of_nodes = 10000;
+    int number_of_edges = 200000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
@@ -139,9 +139,9 @@ TEST(TRB, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
     ASSERT_EQ(g, g2);
 }
 
-TEST(TRO, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
-    int number_of_nodes = 1000;
-    int number_of_edges = 20000;
+TEST(TRO, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
+    int number_of_nodes = 10000;
+    int number_of_edges = 200000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);
@@ -157,9 +157,9 @@ TEST(TRO, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
     ASSERT_EQ(g, g2);
 }
 
-TEST(TRO_PLUS, correctlyBuildTransitiveReductionOnLargeGeneratedGraphs) {
-    int number_of_nodes = 1000;
-    int number_of_edges = 20000;
+TEST(TRO_PLUS, correctlyBuildsTransitiveReductionOnLargeGeneratedGraphs) {
+    int number_of_nodes = 10000;
+    int number_of_edges = 200000;
 
     set_seed(12092024);
     auto g = generate_graph(number_of_nodes, number_of_edges, true);

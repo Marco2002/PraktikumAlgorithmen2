@@ -14,7 +14,7 @@ NodeOrder get_topological_order(graph& dag) {
     // the algorithm used for creating a topological order of nodes is Kahn's Algorithm
     std::vector<long> topological_order(dag.nodes_.size());
     std::vector<long> topological_order_reverse(dag.nodes_.size());
-    std::stack<const node*> nodes_without_incoming_edge = {};
+    std::stack<node const*> nodes_without_incoming_edge = {};
     std::vector<long> num_of_visited_edges_for_node(dag.nodes_.size(), 0); // this map keeps track of the number of visited edges by Kahn's Algorithm for each node
     long long visited_edges_total = 0; // this variable keeps track of the total number of visited edges
     long current_index = 0;
@@ -28,7 +28,7 @@ NodeOrder get_topological_order(graph& dag) {
     // Kahn's Algorithm
     while(!nodes_without_incoming_edge.empty()) {
         // get the last node n from the nodes without incoming edge
-        const node* n = nodes_without_incoming_edge.top();
+        auto const* n = nodes_without_incoming_edge.top();
         nodes_without_incoming_edge.pop();
 
         // set the index of the current node
@@ -57,30 +57,30 @@ NodeOrder get_topological_order(graph& dag) {
     return std::make_tuple(topological_order, topological_order_reverse);
 }
 
-void set_edges_in_topological_order(graph& dag, const std::vector<long>& to) {
+void set_edges_in_topological_order(graph& dag, std::vector<long> const& to) {
 
     // sort outgoing and incoming edges
     for(auto& n : dag.nodes_) {
-        std::sort(n.outgoing_edges_.begin(), n.outgoing_edges_.end(), [&to](const node* a, const node* b) { return to[a->id_] < to[b->id_]; });
-        std::sort(n.incoming_edges_.begin(), n.incoming_edges_.end(), [&to](const node* a, const node* b) { return to[a->id_] > to[b->id_]; });
+        std::sort(n.outgoing_edges_.begin(), n.outgoing_edges_.end(), [&to](node const* a, node const* b) { return to[a->id_] < to[b->id_]; });
+        std::sort(n.incoming_edges_.begin(), n.incoming_edges_.end(), [&to](node const* a, node const* b) { return to[a->id_] > to[b->id_]; });
     }
 
 }
 
-std::unordered_set<const node*> find_all_reachable_nodes(const node& u, const bool include_root) {
-    std::unordered_set<const node*> visited;
-    std::stack<const node*> to_visit;
+std::unordered_set<node const*> find_all_reachable_nodes(node const& u, bool const include_root) {
+    std::unordered_set<node const*> visited;
+    std::stack<node const*> to_visit;
 
     to_visit.push(&u);
 
     while (!to_visit.empty()) {
-        const node* current = to_visit.top();
+        auto const* current = to_visit.top();
         to_visit.pop();
 
         if (visited.contains(current)) continue;
 
         visited.insert(current);
-        for (const node* neighbor : current->outgoing_edges_) {
+        for (auto const* neighbor : current->outgoing_edges_) {
             if (!visited.contains(neighbor)) {
                 to_visit.push(neighbor);
             }
@@ -96,20 +96,20 @@ std::unordered_set<const node*> find_all_reachable_nodes(const node& u, const bo
 
 void build_tr_by_dfs(graph& g) {
     for(auto& n : g.nodes_) {
-        std::unordered_set<const node*> reachable_nodes;
+        std::unordered_set<node const*> reachable_nodes;
         std::vector<node*> nodes_to_remove;
-        for(const auto m : n.outgoing_edges_) {
+        for(auto const m : n.outgoing_edges_) {
             auto reachable_from_m = find_all_reachable_nodes(*m, false);
             reachable_nodes.insert(reachable_from_m.begin(), reachable_from_m.end());
         }
 
-        for(const auto m : n.outgoing_edges_) {
+        for(auto const m : n.outgoing_edges_) {
             if(reachable_nodes.contains(m)) {
                 nodes_to_remove.push_back(m);
             }
         }
 
-        for(const auto m : nodes_to_remove) {
+        for(auto const m : nodes_to_remove) {
             g.remove_edge(n, *m);
         }
     }
@@ -133,7 +133,7 @@ graph copy_graph(graph& g) {
     return std::move(new_graph);
 }
 
-void shuffle_graph(graph& g, long seed) {
+void shuffle_graph(graph& g, long const seed) {
     // Create a vector of pointers to nodes for shuffling
     std::vector<node *> node_ptrs(g.nodes_.size());
     for (size_t i = 0; i < g.nodes_.size(); ++i) {
@@ -157,7 +157,7 @@ void shuffle_graph(graph& g, long seed) {
 
     // Update outgoing and incoming edges to point to the new nodes
     for (size_t i = 0; i < node_ptrs.size(); ++i) {
-        node &current_node = shuffled_nodes[i];
+        auto& current_node = shuffled_nodes[i];
         // Update outgoing edges
         for (auto &outgoing: current_node.outgoing_edges_) {
             outgoing = &shuffled_nodes[new_indexes[outgoing->id_]];
