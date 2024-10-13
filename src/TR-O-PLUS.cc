@@ -14,8 +14,9 @@ struct up_down_node {
     up_down_node(node* node, bool const is_up, size_t const degree) : node_(node), is_up_(is_up), degree(degree) {}
 };
 
-std::queue<Edge> sort_edge_tro_plus(graph& graph, std::vector<long> const& to, std::vector<long> const& to_reverse) {
-    std::queue<Edge> queue;
+std::vector<Edge> sort_edge_tro_plus(graph& graph) {
+    std::vector<Edge> queue;
+    queue.reserve(graph.number_of_edges_);
 
     std::vector<up_down_node> up_and_down_nodes;
     up_and_down_nodes.reserve(graph.nodes_.size()*2);
@@ -29,23 +30,23 @@ std::queue<Edge> sort_edge_tro_plus(graph& graph, std::vector<long> const& to, s
         return a.degree < b.degree;
     });
 
-    std::unordered_set<Edge, EdgeHash> handled_edges(graph.nodes_.size());
+    std::unordered_set<Edge, EdgeHash> handled_edges(graph.number_of_edges_);
 
     for(auto const& up_down_node : up_and_down_nodes) {
         if(up_down_node.is_up_) {
             for (auto incoming_node : up_down_node.node_->incoming_edges_) { // loop in descending order through incoming_edges
                 auto edge = std::make_tuple(incoming_node, up_down_node.node_);
-                if(!handled_edges.contains(edge)) {
-                    queue.emplace(incoming_node, up_down_node.node_);
-                    handled_edges.insert(edge);
+                auto [it, inserted] = handled_edges.insert(edge);
+                if (inserted) {
+                    queue.emplace_back(std::move(edge));
                 }
             }
         } else {
             for (auto outgoing_node : up_down_node.node_->outgoing_edges_) { // loop in ascending order through outgoing_edges
                 auto edge = std::make_tuple(up_down_node.node_, outgoing_node);
-                if(!handled_edges.contains(edge)) {
-                    queue.emplace(up_down_node.node_, outgoing_node);
-                    handled_edges.insert(edge);
+                auto [it, inserted] = handled_edges.insert(edge);
+                if (inserted) {
+                    queue.emplace_back(std::move(edge));
                 }
             }
         }
@@ -83,12 +84,9 @@ void tr_o_plus(graph& graph) {
 
     auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
 
-    auto queue = sort_edge_tro_plus(graph, to, to_reverse);
+    auto queue = sort_edge_tro_plus(graph);
 
-    while(!queue.empty()) {
-        auto const edge = queue.front();
-        queue.pop();
-
+    for(auto edge : queue) {
         if(is_redundant_tro_plus(labeled_graph, edge, to)) {
             graph.remove_edge(*std::get<0>(edge), *std::get<1>(edge));
         }

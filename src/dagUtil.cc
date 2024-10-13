@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <stack>
+#include <queue>
 
 /**
  * sorts the given dag in topological order and sets the id_ of each node to its position in the topological order
@@ -12,11 +13,12 @@
  */
 NodeOrder get_topological_order(graph& dag) {
     // the algorithm used for creating a topological order of nodes is Kahn's Algorithm
-    std::vector<long> topological_order(dag.nodes_.size());
-    std::vector<long> topological_order_reverse(dag.nodes_.size());
-    std::stack<node const*> nodes_without_incoming_edge = {};
-    std::vector<long> num_of_visited_edges_for_node(dag.nodes_.size(), 0); // this map keeps track of the number of visited edges by Kahn's Algorithm for each node
-    long long visited_edges_total = 0; // this variable keeps track of the total number of visited edges
+    long num_of_nodes = dag.nodes_.size();
+
+    std::vector<long> topological_order(num_of_nodes);
+    std::vector<long> topological_order_reverse(num_of_nodes);
+    std::queue<node const*> nodes_without_incoming_edge = {};
+    std::vector<long> num_of_visited_edges_for_node(num_of_nodes, 0); // this map keeps track of the number of visited edges by Kahn's Algorithm for each node
     long current_index = 0;
 
     // Look for all nodes that have no incoming edges and store them in nodes_without_incoming_edge
@@ -28,30 +30,27 @@ NodeOrder get_topological_order(graph& dag) {
     // Kahn's Algorithm
     while(!nodes_without_incoming_edge.empty()) {
         // get the last node n from the nodes without incoming edge
-        auto const* n = nodes_without_incoming_edge.top();
+        auto const& n = *nodes_without_incoming_edge.front();
         nodes_without_incoming_edge.pop();
 
         // set the index of the current node
-        topological_order[n->id_] = current_index;
-        topological_order_reverse[current_index++] = n->id_;
+        topological_order[n.id_] = current_index;
+        topological_order_reverse[current_index++] = n.id_;
 
         // loop through each edge e of each node m that has an incoming edge from n to m
-        for(auto const m : n->outgoing_edges_) {
-
-            // increment num_of_visited_edges_for_node for node m
-            num_of_visited_edges_for_node[m->id_] = num_of_visited_edges_for_node[m->id_] + 1;
-            visited_edges_total += 1;
+        for(auto const outgoing_edge : n.outgoing_edges_) {
+            auto const& m = *outgoing_edge;
 
             // check if node m has no more incoming edges and if so add it to the topological order
-            if(num_of_visited_edges_for_node[m->id_] == m->incoming_edges_.size()) {
-                nodes_without_incoming_edge.push(m);
+            if(++num_of_visited_edges_for_node[m.id_] == m.incoming_edges_.size()) {
+                nodes_without_incoming_edge.push(&m);
             }
         }
     }
 
-    // check if input graph is a dag
-    if(visited_edges_total != dag.number_of_edges_) {
-        throw std::invalid_argument( "the input graph is not a dag" );
+    // Check if the graph is a DAG
+    if (current_index != dag.nodes_.size()) {
+        throw std::invalid_argument("the input graph is not a dag");
     }
 
     return std::make_tuple(topological_order, topological_order_reverse);

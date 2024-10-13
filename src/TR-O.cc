@@ -35,8 +35,8 @@ bool is_redundant_tro(labeled_graph<hash_range> const& labeled_graph, Edge const
 // Algorithm 2 TR-O
 template <size_t hash_range>
 void tr_o(graph& graph) {
-    auto const [to, to_revere] = get_topological_order(graph); // add sorting into topological order
-    set_edges_in_topological_order(graph, to);
+    auto const [to, to_revere] = get_topological_order(graph);
+    set_edges_in_topological_order(graph, to);// add sorting into topological order
     auto const labeled_graph = build_labeled_graph<hash_range>(graph, [](node const* n) { return hash_in_range(n->id_, hash_range); }, hash_range*10);
     auto queue = sort_edge_tro(graph, to, to_revere);
 
