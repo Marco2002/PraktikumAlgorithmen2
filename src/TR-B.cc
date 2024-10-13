@@ -1,10 +1,10 @@
 #include "TR-B.h"
 
-#include "BFL.h"
-#include "MurmurHash3.h"
-
 #include <queue>
 #include <algorithm>
+
+#include "BFL.h"
+#include "MurmurHash3.h"
 
 std::queue<Edge> sort_edge(graph& graph) {
     std::queue<Edge> queue;

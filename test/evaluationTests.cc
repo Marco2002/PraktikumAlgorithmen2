@@ -1,7 +1,7 @@
+#include "gtest/gtest.h"
+
 #include <fstream>
 #include <filesystem>
-
-#include "gtest/gtest.h"
 
 #include "TR-B.h"
 #include "TR-O.h"

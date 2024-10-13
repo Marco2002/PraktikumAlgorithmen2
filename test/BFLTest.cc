@@ -1,13 +1,13 @@
 #include "gtest/gtest.h"
 
+#include <stack>
+#include <unordered_set>
+#include <random>
+
 #include "graphs.h"
 #include "BFL.cc"
 #include "dagGenerator.h"
 #include "dagUtil.h"
-
-#include <stack>
-#include <unordered_set>
-#include <random>
 
 std::stringstream buffer;
 

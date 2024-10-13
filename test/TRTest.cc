@@ -4,7 +4,6 @@
 #include "TR-B.h"
 #include "TR-O.h"
 #include "TR-O-PLUS.h"
-
 #include "dagGenerator.h"
 #include "dagUtil.h"
 

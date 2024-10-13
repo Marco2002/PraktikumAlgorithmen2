@@ -1,7 +1,5 @@
 #include "BFL.h"
 
-#include <stack>
-
 void depth_first_search_visit(node const& n, LabelDiscovery& label_discover, LabelFinish& label_finish, std::vector<node const*>& post_order, long& current, long& order_index) {
     label_discover[n.id_] = ++current;
     for (auto const e : n.outgoing_edges_) {

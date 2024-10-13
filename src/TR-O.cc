@@ -1,12 +1,12 @@
 #include "TR-O.h"
 
-#include "BFL.h"
-#include "dagUtil.h"
-#include "MurmurHash3.h"
-
 #include <queue>
 #include <algorithm>
 #include <ranges>
+
+#include "BFL.h"
+#include "dagUtil.h"
+#include "MurmurHash3.h"
 
 std::queue<Edge> sort_edge_tro(graph& graph, std::vector<long> const& to, std::vector<long> const& to_reverse) {
     std::queue<Edge> queue;

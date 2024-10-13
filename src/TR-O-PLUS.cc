@@ -1,10 +1,10 @@
 #include "TR-O-PLUS.h"
 
-#include "dagUtil.h"
-#include "MurmurHash3.h"
-
 #include <queue>
 #include <unordered_set>
+
+#include "dagUtil.h"
+#include "MurmurHash3.h"
 
 struct up_down_node {
     node* node_;
